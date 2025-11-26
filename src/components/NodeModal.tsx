@@ -1742,8 +1742,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose }) => {
               <div className="text-xs text-gray-500">
                 ⚙️ {node.decision.last_audit.toUpperCase()}
               </div>
-            </div>
-          </div>
+           </div>
         )}
       </div>
 
