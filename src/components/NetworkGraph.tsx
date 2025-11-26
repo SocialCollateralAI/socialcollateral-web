@@ -52,23 +52,46 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
 
   // Function to get node color based on trust score
   const getNodeColor = (trustScore: number) => {
-    if (trustScore > 80) return '#22c55e' // Green
-    if (trustScore >= 25) return '#eab308' // Yellow
-    return '#ef4444' // Red
+    if (trustScore > 80) return '#22c55e' // Green (Healthy)
+    if (trustScore >= 25) return '#eab308' // Yellow (Medium)
+    return '#ef4444' // Red (High Risk)
   }
 
-  // Filter nodes based on selected filters
+  // --- UPDATED: Filter Logic lebih pintar (Mapping Score) ---
   const getFilteredNodes = () => {
     return networkData.nodes.filter((node: NodeData) => {
-      // Location filter
+
+      // 1. Location Filter
       if (selectedLocation !== 'all') {
+        // Cek jika user memilih kota (kabupaten)
+        if (selectedLocation === 'bogor' && node.cityId !== 'bogor') return false
         if (selectedLocation === 'bekasi' && node.cityId !== 'bekasi') return false
         if (selectedLocation === 'karawang' && node.cityId !== 'karawang') return false
-        if (!['bekasi', 'karawang'].includes(selectedLocation) && node.villageId !== selectedLocation) return false
+
+        // Cek jika user memilih desa (villageId)
+        // Jika selectedLocation bukan nama kota, kita asumsikan itu ID desa
+        const isCity = ['bogor', 'bekasi', 'karawang'].includes(selectedLocation)
+        if (!isCity && node.villageId !== selectedLocation) return false
       }
 
-      // Status filter
-      if (selectedStatus !== 'all' && node.status !== selectedStatus) return false
+      // 2. Status Filter (Sinkronisasi dengan Logic Trust Score/Warna)
+      if (selectedStatus !== 'all') {
+        // Healthy: Score > 80
+        if (selectedStatus === 'healthy') {
+          return node.trustScore > 80
+        }
+        // Medium: Score 25 - 80
+        if (selectedStatus === 'medium') {
+          return node.trustScore >= 25 && node.trustScore <= 80
+        }
+        // High Risk: Score < 25
+        if (selectedStatus === 'high') {
+          return node.trustScore < 25
+        }
+
+        // Fallback: Jika logic diatas tidak kena, cek string equality biasa
+        if (node.status !== selectedStatus) return false
+      }
 
       return true
     })
@@ -86,6 +109,10 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
       // Create a new graph
       const graph = new Graph()
       const filteredNodes = getFilteredNodes()
+
+      // Debugging: Cek di console berapa node yang lolos filter
+      console.log(`[NetworkGraph] Filtered: Location=${selectedLocation}, Status=${selectedStatus} -> Nodes Count: ${filteredNodes.length}`)
+
       const filteredNodeIds = new Set(filteredNodes.map(n => n.id))
 
       // Add filtered nodes with updated colors
@@ -108,7 +135,9 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
             if (!graph.hasEdge(edge.source, edge.target)) {
               graph.addEdge(edge.source, edge.target, {
                 ...edge,
-                type: 'line'
+                type: 'line',
+                color: '#e5e7eb', // Default edge color (light gray)
+                size: 2
               })
             }
           } catch (e) {
@@ -157,7 +186,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
         console.log('[NetworkGraph] clickNode event:', node)
         // try to find the node in the full dataset first, fallback to filteredNodes
         const nodeData = networkData.nodes.find((n: NodeData) => n.id === node) || filteredNodes.find((n: NodeData) => n.id === node)
-        console.log('[NetworkGraph] resolved nodeData:', nodeData)
+
         if (nodeData) {
           if (typeof onNodeSelect === 'function') onNodeSelect(nodeData)
         }
@@ -166,10 +195,13 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
       // Handle node hover
       sigma.on('enterNode', ({ node }) => {
         setHoveredNode(node)
+        // Optional: Change cursor style
+        if (containerRef.current) containerRef.current.style.cursor = 'pointer'
       })
 
       sigma.on('leaveNode', () => {
         setHoveredNode(null)
+        if (containerRef.current) containerRef.current.style.cursor = 'default'
       })
 
       // Handle background clicks
@@ -192,45 +224,52 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
         ro = null
       }
     }
-  }, [selectedLocation, selectedStatus])
+  }, [selectedLocation, selectedStatus]) // Dependency Array ensures re-run on change
 
 
   return (
-    <div className="relative w-full h-full">
-      <div ref={containerRef} className="w-full h-full" />
-      
+    <div className="relative w-full h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div ref={containerRef} className="w-full h-full outline-none" />
+
       {/* Hover tooltip */}
       {hoveredNode && (
-        <div className="absolute top-4 left-4 bg-white shadow-lg rounded-lg p-3 pointer-events-none z-10">
-          <div className="text-sm font-semibold text-gray-900">
+        <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm shadow-lg border border-gray-100 rounded-xl p-4 pointer-events-none z-10 min-w-[200px] animate-in fade-in zoom-in duration-200">
+          <div className="text-sm font-bold text-gray-900 mb-1">
             {networkData.nodes.find(n => n.id === hoveredNode)?.label}
           </div>
-          <div className="text-xs text-gray-600">
-            Trust Score: {networkData.nodes.find(n => n.id === hoveredNode)?.trustScore}%
+          <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+            <span>Trust Score</span>
+            <span className={`font-bold ${
+              (networkData.nodes.find(n => n.id === hoveredNode)?.trustScore || 0) > 80 ? 'text-green-600' :
+              (networkData.nodes.find(n => n.id === hoveredNode)?.trustScore || 0) >= 25 ? 'text-yellow-600' : 'text-red-600'
+            }`}>
+              {networkData.nodes.find(n => n.id === hoveredNode)?.trustScore}%
+            </span>
+          </div>
+          <div className="text-xs text-gray-400 border-t pt-2 mt-1">
+            Click to view details
           </div>
         </div>
       )}
-      
+
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-white shadow-lg rounded-lg p-4">
-        <h3 className="text-sm font-semibold mb-2">Group Trust Score</h3>
-        <div className="space-y-1 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span>&gt; 80%: Sangat Baik</span>
+      <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm shadow-md border border-gray-100 rounded-xl p-4 z-0">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3">Risk Categories</h3>
+        <div className="space-y-2 text-xs font-medium">
+          <div className="flex items-center gap-2.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+            <span className="text-gray-700">Healthy Group (&gt; 80%)</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <span>25% - 80%: Cukup</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)]"></div>
+            <span className="text-gray-700">Medium Risk (25% - 80%)</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span>&lt; 25%: Perlu Perhatian</span>
+          <div className="flex items-center gap-2.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
+            <span className="text-gray-700">High Risk (&lt; 25%)</span>
           </div>
         </div>
       </div>
-
-      {/* Node Modal is rendered by parent (App) via onNodeSelect) */}
     </div>
   )
 }
