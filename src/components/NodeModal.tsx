@@ -107,9 +107,10 @@ interface Node {
 interface NodeModalProps {
   node: Node | null;
   onClose: () => void;
+  onApprove?: (amount: number) => void;
 }
 
-const NodeModal: React.FC<NodeModalProps> = ({ node, onClose }) => {
+const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
   const [activeTab, setActiveTab] = useState("overview");
   const [radarSort, setRadarSort] = useState("toxic-first");
   const [loanApproved, setLoanApproved] = useState(false);
@@ -149,11 +150,16 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose }) => {
     }
   }, [node]);
 
-  // Function to handle loan approval and save to localStorage
+  // Function to handle loan approval, save to localStorage and notify parent
   const handleLoanApproval = () => {
-    if (node) {
-      setLoanApproved(true);
-      localStorage.setItem(`loanApproved_${node.id}`, "true");
+    if (!node) return;
+    setLoanApproved(true);
+    localStorage.setItem(`loanApproved_${node.id}`, "true");
+
+    // Prefer recommended cap; fallback to total_loan_amount
+    const amount = node.overview?.max_plafon_recommendation ?? node.header?.total_loan_amount ?? 0;
+    if (onApprove && typeof onApprove === "function") {
+      onApprove(amount);
     }
   };
 
@@ -474,8 +480,8 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose }) => {
                         node.header.trust_score > 80
                           ? "bg-blue-500"
                           : node.header.trust_score >= 25
-                          ? "bg-blue-400"
-                          : "bg-blue-300"
+                          ? "bg-yellow-500"
+                          : "bg-yellow-500"
                       }`}
                       style={{
                         width: `${node.overview.primary_driver.payment_score}%`,
@@ -486,8 +492,8 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose }) => {
                         node.header.trust_score > 80
                           ? "bg-emerald-500"
                           : node.header.trust_score >= 25
-                          ? "bg-emerald-400"
-                          : "bg-emerald-300"
+                          ? "bg-red-500"
+                          : "bg-red-500"
                       }`}
                       style={{
                         width: `${node.overview.primary_driver.social_score}%`,
@@ -501,8 +507,8 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose }) => {
                           node.header.trust_score > 80
                             ? "bg-blue-500"
                             : node.header.trust_score >= 25
-                            ? "bg-blue-400"
-                            : "bg-blue-300"
+                            ? "bg-yellow-500"
+                            : "bg-yellow-500"
                         }`}
                       ></div>
                       <span className="text-xs text-gray-700 font-bold">
@@ -518,8 +524,8 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose }) => {
                           node.header.trust_score > 80
                             ? "bg-emerald-500"
                             : node.header.trust_score >= 25
-                            ? "bg-emerald-400"
-                            : "bg-emerald-300"
+                            ? "bg-red-500"
+                            : "bg-red-500"
                         }`}
                       ></div>
                     </div>
@@ -1742,7 +1748,8 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose }) => {
               <div className="text-xs text-gray-500">
                 ⚙️ {node.decision.last_audit.toUpperCase()}
               </div>
-           </div>
+            </div>
+          </div>
         )}
       </div>
 
