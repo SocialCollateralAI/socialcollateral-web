@@ -1,0 +1,496 @@
+{
+  "locations": {
+    "cities": [
+      {
+        "id": "bekasi",
+        "name": "Kota Bekasi",
+        "type": "city"
+      },
+      {
+        "id": "karawang",
+        "name": "Kabupaten Karawang", 
+        "type": "regency"
+      }
+    ],
+    "districts": [
+      {
+        "id": "cikarang_barat",
+        "name": "Kec. Cikarang Barat",
+        "cityId": "bekasi",
+        "type": "district"
+      },
+      {
+        "id": "cikarang_timur",
+        "name": "Kec. Cikarang Timur",
+        "cityId": "bekasi",
+        "type": "district"
+      },
+      {
+        "id": "cikarang_selatan",
+        "name": "Kec. Cikarang Selatan", 
+        "cityId": "bekasi",
+        "type": "district"
+      },
+      {
+        "id": "cikarang_utara",
+        "name": "Kec. Cikarang Utara",
+        "cityId": "bekasi",
+        "type": "district"
+      },
+      {
+        "id": "telukjambe_timur",
+        "name": "Kec. Telukjambe Timur",
+        "cityId": "karawang",
+        "type": "district"
+      },
+      {
+        "id": "klari",
+        "name": "Kec. Klari",
+        "cityId": "karawang", 
+        "type": "district"
+      }
+    ],
+    "villages": [
+      {
+        "id": "sukamaju",
+        "name": "Desa Sukamaju",
+        "districtId": "cikarang_barat",
+        "type": "village"
+      },
+      {
+        "id": "makmur",
+        "name": "Desa Makmur",
+        "districtId": "cikarang_timur",
+        "type": "village"
+      },
+      {
+        "id": "sejahtera",
+        "name": "Desa Sejahtera",
+        "districtId": "cikarang_selatan",
+        "type": "village"
+      },
+      {
+        "id": "harmoni",
+        "name": "Desa Harmoni",
+        "districtId": "cikarang_utara",
+        "type": "village"
+      },
+      {
+        "id": "sumber_jaya",
+        "name": "Desa Sumber Jaya",
+        "districtId": "telukjambe_timur",
+        "type": "village"
+      },
+      {
+        "id": "karya_mukti",
+        "name": "Desa Karya Mukti",
+        "districtId": "klari",
+        "type": "village"
+      },
+      {
+        "id": "tanjung_sari",
+        "name": "Desa Tanjung Sari",
+        "districtId": "cikarang_barat",
+        "type": "village"
+      },
+      {
+        "id": "wangun_harja",
+        "name": "Desa Wangun Harja",
+        "districtId": "cikarang_timur",
+        "type": "village"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "group_1",
+      "label": "Kelompok Mawar",
+      "x": 100,
+      "y": 50,
+      "size": 12,
+      "color": "#22c55e",
+      "type": "group",
+      "trustScore": 85,
+      "villageId": "sukamaju",
+      "districtId": "cikarang_barat",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Sari", "role": "Ketua", "business": "Warung Kelontong", "monthlyIncome": 3500000 },
+        { "name": "Ibu Dewi", "role": "Bendahara", "business": "Catering", "monthlyIncome": 2800000 },
+        { "name": "Ibu Rina", "role": "Anggota", "business": "Toko Sembako", "monthlyIncome": 4200000 },
+        { "name": "Ibu Lestari", "role": "Anggota", "business": "Salon", "monthlyIncome": 2500000 }
+      ],
+      "loanAmount": 25000000,
+      "repaymentRate": 98,
+      "location": "Desa Sukamaju, Kec. Cikarang Barat",
+      "formationDate": "2023-01-15",
+      "lastActivity": "2024-11-20",
+      "status": "active"
+    },
+    {
+      "id": "group_2",
+      "label": "Kelompok Melati",
+      "x": 200,
+      "y": 150,
+      "size": 10,
+      "color": "#eab308",
+      "type": "group",
+      "trustScore": 72,
+      "villageId": "sukamaju",
+      "districtId": "cikarang_barat", 
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Maya", "role": "Ketua", "business": "Ternak Ayam", "monthlyIncome": 3200000 },
+        { "name": "Ibu Sinta", "role": "Bendahara", "business": "Jual Sayur", "monthlyIncome": 2100000 },
+        { "name": "Ibu Ratna", "role": "Anggota", "business": "Warung Nasi", "monthlyIncome": 2600000 }
+      ],
+      "loanAmount": 18000000,
+      "repaymentRate": 89,
+      "location": "Desa Sukamaju, Kec. Cikarang Barat",
+      "formationDate": "2023-03-10",
+      "lastActivity": "2024-11-18",
+      "status": "active"
+    },
+    {
+      "id": "group_3",
+      "label": "Kelompok Anggrek",
+      "x": 300,
+      "y": 100,
+      "size": 14,
+      "color": "#22c55e",
+      "type": "group",
+      "trustScore": 91,
+      "villageId": "makmur",
+      "districtId": "cikarang_timur",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Fitri", "role": "Ketua", "business": "Konveksi", "monthlyIncome": 4800000 },
+        { "name": "Ibu Nur", "role": "Bendahara", "business": "Toko Baju", "monthlyIncome": 3800000 },
+        { "name": "Ibu Wati", "role": "Anggota", "business": "Laundry", "monthlyIncome": 2900000 },
+        { "name": "Ibu Yuni", "role": "Anggota", "business": "Kue Kering", "monthlyIncome": 3100000 },
+        { "name": "Ibu Sri", "role": "Anggota", "business": "Fotocopy", "monthlyIncome": 2200000 }
+      ],
+      "loanAmount": 35000000,
+      "repaymentRate": 99,
+      "location": "Desa Makmur, Kec. Cikarang Timur",
+      "formationDate": "2022-11-20",
+      "lastActivity": "2024-11-22",
+      "status": "active"
+    },
+    {
+      "id": "group_4",
+      "label": "Kelompok Dahlia",
+      "x": 150,
+      "y": 250,
+      "size": 8,
+      "color": "#ef4444",
+      "type": "group",
+      "trustScore": 23,
+      "villageId": "tanjung_sari",
+      "districtId": "cikarang_barat",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Linda", "role": "Ketua", "business": "Jual Pulsa", "monthlyIncome": 1800000 },
+        { "name": "Ibu Tini", "role": "Bendahara", "business": "Gorengan", "monthlyIncome": 1500000 },
+        { "name": "Ibu Ani", "role": "Anggota", "business": "Jual Es", "monthlyIncome": 1200000 }
+      ],
+      "loanAmount": 12000000,
+      "repaymentRate": 65,
+      "location": "Desa Tanjung Sari, Kec. Cikarang Barat",
+      "formationDate": "2024-02-05",
+      "lastActivity": "2024-11-10",
+      "status": "warning"
+    },
+    {
+      "id": "group_5",
+      "label": "Kelompok Kenanga",
+      "x": 250,
+      "y": 200,
+      "size": 11,
+      "color": "#eab308",
+      "type": "group",
+      "trustScore": 68,
+      "villageId": "sejahtera",
+      "districtId": "cikarang_selatan",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Eka", "role": "Ketua", "business": "Warung Kopi", "monthlyIncome": 2700000 },
+        { "name": "Ibu Diah", "role": "Bendahara", "business": "Jual Kerupuk", "monthlyIncome": 2000000 },
+        { "name": "Ibu Mira", "role": "Anggota", "business": "Tukang Jahit", "monthlyIncome": 2400000 },
+        { "name": "Ibu Novi", "role": "Anggota", "business": "Jual Bunga", "monthlyIncome": 1900000 }
+      ],
+      "loanAmount": 22000000,
+      "repaymentRate": 84,
+      "location": "Desa Sejahtera, Kec. Cikarang Selatan",
+      "formationDate": "2023-06-12",
+      "lastActivity": "2024-11-15",
+      "status": "active"
+    },
+    {
+      "id": "group_6",
+      "label": "Kelompok Tulip",
+      "x": 350,
+      "y": 180,
+      "size": 13,
+      "color": "#22c55e",
+      "type": "group",
+      "trustScore": 87,
+      "villageId": "wangun_harja",
+      "districtId": "cikarang_timur",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Rina", "role": "Ketua", "business": "Bakery", "monthlyIncome": 4100000 },
+        { "name": "Ibu Sari", "role": "Bendahara", "business": "Toko Kue", "monthlyIncome": 3600000 },
+        { "name": "Ibu Indah", "role": "Anggota", "business": "Catering Harian", "monthlyIncome": 3200000 },
+        { "name": "Ibu Yanti", "role": "Anggota", "business": "Jus Buah", "monthlyIncome": 2800000 }
+      ],
+      "loanAmount": 28000000,
+      "repaymentRate": 96,
+      "location": "Desa Wangun Harja, Kec. Cikarang Timur",
+      "formationDate": "2023-04-18",
+      "lastActivity": "2024-11-21",
+      "status": "active"
+    },
+    {
+      "id": "group_7",
+      "label": "Kelompok Seruni",
+      "x": 120,
+      "y": 320,
+      "size": 9,
+      "color": "#eab308",
+      "type": "group",
+      "trustScore": 56,
+      "villageId": "harmoni",
+      "districtId": "cikarang_utara",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Lastri", "role": "Ketua", "business": "Penjual Sayur Keliling", "monthlyIncome": 2200000 },
+        { "name": "Ibu Winda", "role": "Bendahara", "business": "Jual Bumbu", "monthlyIncome": 1800000 },
+        { "name": "Ibu Ayu", "role": "Anggota", "business": "Warung Pecel", "monthlyIncome": 2100000 }
+      ],
+      "loanAmount": 15000000,
+      "repaymentRate": 78,
+      "location": "Desa Harmoni, Kec. Cikarang Utara",
+      "formationDate": "2023-09-22",
+      "lastActivity": "2024-11-12",
+      "status": "active"
+    },
+    {
+      "id": "group_8",
+      "label": "Kelompok Flamboyan",
+      "x": 280,
+      "y": 280,
+      "size": 15,
+      "color": "#22c55e",
+      "type": "group",
+      "trustScore": 93,
+      "villageId": "sejahtera",
+      "districtId": "cikarang_selatan",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Mega", "role": "Ketua", "business": "Distributor Sembako", "monthlyIncome": 5200000 },
+        { "name": "Ibu Desi", "role": "Bendahara", "business": "Toko Elektronik", "monthlyIncome": 4500000 },
+        { "name": "Ibu Lia", "role": "Anggota", "business": "Travel Agent", "monthlyIncome": 3800000 },
+        { "name": "Ibu Rini", "role": "Anggota", "business": "Rental Motor", "monthlyIncome": 3400000 },
+        { "name": "Ibu Putri", "role": "Anggota", "business": "Online Shop", "monthlyIncome": 4200000 }
+      ],
+      "loanAmount": 45000000,
+      "repaymentRate": 99,
+      "location": "Desa Sejahtera, Kec. Cikarang Selatan",
+      "formationDate": "2022-08-30",
+      "lastActivity": "2024-11-23",
+      "status": "active"
+    },
+    {
+      "id": "group_9",
+      "label": "Kelompok Kamboja",
+      "x": 180,
+      "y": 380,
+      "size": 7,
+      "color": "#ef4444",
+      "type": "group",
+      "trustScore": 19,
+      "villageId": "harmoni",
+      "districtId": "cikarang_utara",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Citra", "role": "Ketua", "business": "Jual Cilok", "monthlyIncome": 1400000 },
+        { "name": "Ibu Eni", "role": "Bendahara", "business": "Cuci Motor", "monthlyIncome": 1600000 },
+        { "name": "Ibu Dina", "role": "Anggota", "business": "Jual Mainan", "monthlyIncome": 1100000 }
+      ],
+      "loanAmount": 9000000,
+      "repaymentRate": 52,
+      "location": "Desa Harmoni, Kec. Cikarang Utara",
+      "formationDate": "2024-05-10",
+      "lastActivity": "2024-11-05",
+      "status": "critical"
+    },
+    {
+      "id": "group_10",
+      "label": "Kelompok Teratai",
+      "x": 320,
+      "y": 340,
+      "size": 12,
+      "color": "#eab308",
+      "type": "group",
+      "trustScore": 74,
+      "villageId": "makmur",
+      "districtId": "cikarang_timur",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Fajar", "role": "Ketua", "business": "Pedagang Ikan", "monthlyIncome": 3000000 },
+        { "name": "Ibu Gita", "role": "Bendahara", "business": "Warung Soto", "monthlyIncome": 2500000 },
+        { "name": "Ibu Hani", "role": "Anggota", "business": "Jual Tas", "monthlyIncome": 2200000 },
+        { "name": "Ibu Ida", "role": "Anggota", "business": "Salon Kecantikan", "monthlyIncome": 2700000 }
+      ],
+      "loanAmount": 20000000,
+      "repaymentRate": 88,
+      "location": "Desa Makmur, Kec. Cikarang Timur",
+      "formationDate": "2023-07-25",
+      "lastActivity": "2024-11-17",
+      "status": "active"
+    },
+    {
+      "id": "group_11",
+      "label": "Kelompok Bougenville",
+      "x": 400,
+      "y": 120,
+      "size": 10,
+      "color": "#eab308",
+      "type": "group",
+      "trustScore": 45,
+      "villageId": "sumber_jaya",
+      "districtId": "telukjambe_timur",
+      "cityId": "karawang",
+      "members": [
+        { "name": "Ibu Yayah", "role": "Ketua", "business": "Warung Nasi Uduk", "monthlyIncome": 2100000 },
+        { "name": "Ibu Tuti", "role": "Bendahara", "business": "Jual Jajanan", "monthlyIncome": 1800000 },
+        { "name": "Ibu Neni", "role": "Anggota", "business": "Tukang Cuci", "monthlyIncome": 1500000 }
+      ],
+      "loanAmount": 14000000,
+      "repaymentRate": 72,
+      "location": "Desa Sumber Jaya, Kec. Telukjambe Timur",
+      "formationDate": "2023-11-08",
+      "lastActivity": "2024-11-14",
+      "status": "active"
+    },
+    {
+      "id": "group_12",
+      "label": "Kelompok Cempaka",
+      "x": 450,
+      "y": 220,
+      "size": 13,
+      "color": "#22c55e",
+      "type": "group",
+      "trustScore": 89,
+      "villageId": "karya_mukti",
+      "districtId": "klari",
+      "cityId": "karawang",
+      "members": [
+        { "name": "Ibu Romlah", "role": "Ketua", "business": "Toko Kelontong Besar", "monthlyIncome": 4300000 },
+        { "name": "Ibu Sumiyati", "role": "Bendahara", "business": "Warung Bakso", "monthlyIncome": 3100000 },
+        { "name": "Ibu Kartini", "role": "Anggota", "business": "Jual Sayur", "monthlyIncome": 2400000 },
+        { "name": "Ibu Suhartini", "role": "Anggota", "business": "Laundry Kiloan", "monthlyIncome": 2800000 }
+      ],
+      "loanAmount": 32000000,
+      "repaymentRate": 97,
+      "location": "Desa Karya Mukti, Kec. Klari",
+      "formationDate": "2022-12-15",
+      "lastActivity": "2024-11-24",
+      "status": "active"
+    },
+    {
+      "id": "group_13",
+      "label": "Kelompok Alamanda",
+      "x": 80,
+      "y": 180,
+      "size": 8,
+      "color": "#ef4444",
+      "type": "group",
+      "trustScore": 15,
+      "villageId": "sukamaju",
+      "districtId": "cikarang_barat",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Minah", "role": "Ketua", "business": "Jual Kerupuk", "monthlyIncome": 1200000 },
+        { "name": "Ibu Kasih", "role": "Bendahara", "business": "Tukang Cuci", "monthlyIncome": 1000000 },
+        { "name": "Ibu Ngatinah", "role": "Anggota", "business": "Jual Tempe", "monthlyIncome": 900000 }
+      ],
+      "loanAmount": 7500000,
+      "repaymentRate": 48,
+      "location": "Desa Sukamaju, Kec. Cikarang Barat",
+      "formationDate": "2024-03-20",
+      "lastActivity": "2024-10-28",
+      "status": "critical"
+    },
+    {
+      "id": "group_14",
+      "label": "Kelompok Gardenia",
+      "x": 380,
+      "y": 300,
+      "size": 11,
+      "color": "#eab308",
+      "type": "group",
+      "trustScore": 62,
+      "villageId": "wangun_harja",
+      "districtId": "cikarang_timur",
+      "cityId": "bekasi",
+      "members": [
+        { "name": "Ibu Nunung", "role": "Ketua", "business": "Pedagang Ayam", "monthlyIncome": 2900000 },
+        { "name": "Ibu Rahma", "role": "Bendahara", "business": "Warung Mie Ayam", "monthlyIncome": 2300000 },
+        { "name": "Ibu Sopiah", "role": "Anggota", "business": "Jual Buah", "monthlyIncome": 1900000 },
+        { "name": "Ibu Warsih", "role": "Anggota", "business": "Tukang Jahit", "monthlyIncome": 2100000 }
+      ],
+      "loanAmount": 19000000,
+      "repaymentRate": 81,
+      "location": "Desa Wangun Harja, Kec. Cikarang Timur",
+      "formationDate": "2023-08-14",
+      "lastActivity": "2024-11-16",
+      "status": "active"
+    },
+    {
+      "id": "group_15",
+      "label": "Kelompok Srikandi",
+      "x": 420,
+      "y": 380,
+      "size": 6,
+      "color": "#ef4444",
+      "type": "group",
+      "trustScore": 22,
+      "villageId": "sumber_jaya",
+      "districtId": "telukjambe_timur",
+      "cityId": "karawang",
+      "members": [
+        { "name": "Ibu Sarinah", "role": "Ketua", "business": "Jual Gorengan", "monthlyIncome": 1300000 },
+        { "name": "Ibu Marni", "role": "Bendahara", "business": "Cuci Piring", "monthlyIncome": 1100000 },
+        { "name": "Ibu Sumirah", "role": "Anggota", "business": "Jual Es Teh", "monthlyIncome": 800000 }
+      ],
+      "loanAmount": 8500000,
+      "repaymentRate": 55,
+      "location": "Desa Sumber Jaya, Kec. Telukjambe Timur",
+      "formationDate": "2024-01-18",
+      "lastActivity": "2024-11-08",
+      "status": "critical"
+    }
+  ],
+  "edges": [
+    { "id": "edge_1", "source": "group_1", "target": "group_2", "size": 2, "color": "#64748b", "type": "cooperation", "strength": "strong" },
+    { "id": "edge_2", "source": "group_2", "target": "group_4", "size": 1, "color": "#94a3b8", "type": "geographic", "strength": "weak" },
+    { "id": "edge_3", "source": "group_3", "target": "group_6", "size": 3, "color": "#475569", "type": "business", "strength": "strong" },
+    { "id": "edge_4", "source": "group_3", "target": "group_10", "size": 2, "color": "#64748b", "type": "cooperation", "strength": "medium" },
+    { "id": "edge_5", "source": "group_5", "target": "group_8", "size": 3, "color": "#475569", "type": "business", "strength": "strong" },
+    { "id": "edge_6", "source": "group_1", "target": "group_4", "size": 1, "color": "#94a3b8", "type": "geographic", "strength": "weak" },
+    { "id": "edge_7", "source": "group_7", "target": "group_9", "size": 1, "color": "#94a3b8", "type": "geographic", "strength": "weak" },
+    { "id": "edge_8", "source": "group_6", "target": "group_10", "size": 2, "color": "#64748b", "type": "cooperation", "strength": "medium" },
+    { "id": "edge_9", "source": "group_2", "target": "group_5", "size": 1, "color": "#cbd5e1", "type": "referral", "strength": "weak" },
+    { "id": "edge_10", "source": "group_8", "target": "group_3", "size": 2, "color": "#64748b", "type": "business", "strength": "medium" },
+    { "id": "edge_11", "source": "group_11", "target": "group_12", "size": 2, "color": "#64748b", "type": "cooperation", "strength": "medium" },
+    { "id": "edge_12", "source": "group_1", "target": "group_13", "size": 1, "color": "#94a3b8", "type": "geographic", "strength": "weak" },
+    { "id": "edge_13", "source": "group_6", "target": "group_14", "size": 2, "color": "#64748b", "type": "cooperation", "strength": "medium" },
+    { "id": "edge_14", "source": "group_11", "target": "group_15", "size": 1, "color": "#94a3b8", "type": "geographic", "strength": "weak" },
+    { "id": "edge_15", "source": "group_12", "target": "group_3", "size": 1, "color": "#cbd5e1", "type": "referral", "strength": "weak" },
+    { "id": "edge_16", "source": "group_14", "target": "group_10", "size": 1, "color": "#94a3b8", "type": "cooperation", "strength": "weak" },
+    { "id": "edge_17", "source": "group_5", "target": "group_7", "size": 1, "color": "#cbd5e1", "type": "referral", "strength": "weak" },
+    { "id": "edge_18", "source": "group_8", "target": "group_5", "size": 2, "color": "#64748b", "type": "business", "strength": "medium" }
+  ]
+}

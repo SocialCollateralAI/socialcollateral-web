@@ -11,8 +11,11 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.17",
+    "axios": "^1.13.2",
+    "graphology": "^0.26.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "sigma": "^3.0.2",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
