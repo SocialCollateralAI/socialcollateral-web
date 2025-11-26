@@ -43,7 +43,7 @@ function App() {
   const filteredStats = useMemo(() => {
     if (!selectedDesa) {
       return { totalGroups: 0, totalMembers: 0 }
-    }k
+    }
 
     const filteredNodes = networkData.nodes.filter(node => {
       // Filter by Village
