@@ -12,21 +12,27 @@ function App (){
 
   // Calculate filtered data for header stats
   const filteredStats = useMemo(() => {
-    const filteredNodes = networkData.nodes.filter(node => {
+    const filteredNodes = Object.values(networkData.groups).filter(node => {
       // Location filter
       if (selectedLocation !== 'all') {
-        if (selectedLocation === 'bekasi' && node.cityId !== 'bekasi') return false
-        if (selectedLocation === 'karawang' && node.cityId !== 'karawang') return false
-        if (!['bekasi', 'karawang'].includes(selectedLocation) && node.villageId !== selectedLocation) return false
+        if (selectedLocation === 'bekasi' && node.header.location_city !== 'Bekasi') return false
+        if (selectedLocation === 'karawang' && node.header.location_city !== 'Karawang') return false
+        if (!['bekasi', 'karawang'].includes(selectedLocation) && node.header.location_village !== selectedLocation) return false
       }
 
       // Status filter
-      if (selectedStatus !== 'all' && node.status !== selectedStatus) return false
+      const trustScore = node.header.trust_score
+      if (selectedStatus !== 'all') {
+        if (selectedStatus === 'active' && node.header.loan_eligibility !== 'eligible') return false
+        if (selectedStatus === 'high' && trustScore <= 80) return false
+        if (selectedStatus === 'medium' && (trustScore < 25 || trustScore > 80)) return false
+        if (selectedStatus === 'low' && trustScore >= 25) return false
+      }
 
       return true
     })
 
-    const totalMembers = filteredNodes.reduce((sum, node) => sum + node.members.length, 0)
+    const totalMembers = filteredNodes.reduce((sum, node) => sum + node.header.member_count, 0)
 
     return {
       totalGroups: filteredNodes.length,
