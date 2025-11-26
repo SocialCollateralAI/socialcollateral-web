@@ -58,7 +58,7 @@ function App() {
       return true
     })
 
-    const totalMembers = filteredNodes.reduce((sum, node) => sum + node.members.length, 0)
+    const totalMembers = filteredNodes.reduce((sum, node) => sum + node.header.member_count, 0)
 
     return {
       totalGroups: filteredNodes.length,
