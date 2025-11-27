@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import networkData from '../data/networkData.json';
 import { Activity, Filter, Wallet, User, ChevronDown, Check, LayoutDashboard } from 'lucide-react';
 
 interface SidebarProps {
@@ -101,25 +102,36 @@ const Sidebar = ({
   walletBalance
 }: SidebarProps) => {
 
-  const kabupatenOptions = [
-    { id: 'bogor', label: 'Kabupaten Bogor' },
-    { id: 'bekasi', label: 'Kabupaten Bekasi' },
-    { id: 'karawang', label: 'Kabupaten Karawang' },
-  ];
+  // Derive options dynamically from networkData.groups
+  const groupsArray = useMemo(() => Object.values((networkData as any).groups || {}), [] as any[]);
 
-  const desaOptions = [
-    { id: 'sukamaju', label: 'Desa Sukamaju' },
-    { id: 'makmur', label: 'Desa Makmur' },
-    { id: 'sejahtera', label: 'Desa Sejahtera' },
-    { id: 'ciherang', label: 'Desa Ciherang' },
-  ];
+  const kabupatenOptions = useMemo(() => {
+    const cities = Array.from(new Set(groupsArray.map((g: any) => g.header?.location_city).filter(Boolean)));
+    return cities.map((c: string) => ({ id: c, label: c }));
+  }, [groupsArray]);
 
-  const statusOptions = [
-    { id: 'all', label: 'All Status' },
-    { id: 'healthy', label: 'Healthy Group' },
-    { id: 'medium', label: 'Medium Risk' },
-    { id: 'high', label: 'High Risk' }
-  ];
+  const desaOptions = useMemo(() => {
+    if (!selectedKabupaten) return [];
+    const villages = Array.from(new Set(groupsArray
+      .filter((g: any) => g.header?.location_city === selectedKabupaten)
+      .map((g: any) => g.header?.location_village)
+      .filter(Boolean)));
+    return villages.map((v: string) => ({ id: v, label: v }));
+  }, [groupsArray, selectedKabupaten]);
+
+  // Status options derived from trust_score ranges present in data
+  const statusOptions = useMemo(() => {
+    const opts: { id: string; label: string }[] = [{ id: 'all', label: 'All Status' }];
+    const hasHealthy = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) > 80);
+    const hasMedium = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) >= 25 && (g.header?.trust_score ?? 0) <= 80);
+    const hasHigh = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) < 25);
+
+    if (hasHealthy) opts.push({ id: 'healthy', label: 'Healthy Group' });
+    if (hasMedium) opts.push({ id: 'medium', label: 'Medium Risk' });
+    if (hasHigh) opts.push({ id: 'high', label: 'High Risk' });
+
+    return opts;
+  }, [groupsArray]);
 
   const formatRupiah = (amount: number) => {
     return new Intl.NumberFormat('id-ID', {

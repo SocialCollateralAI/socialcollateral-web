@@ -18,18 +18,17 @@ function App() {
     return savedBalance ? parseInt(savedBalance, 10) : 1000000000
   })
 
-  // 3. Logic: Approve Loan mengurangi saldo dan save ke LocalStorage
+  // Handler to deduct approved loan amount from wallet and persist
   const handleApproveLoan = (amount: number) => {
-    // Kurangi saldo
-    const newBalance = walletBalance - amount
-    setWalletBalance(newBalance)
-
-    // Simpan ke local storage
-    localStorage.setItem('amartha_wallet_balance', newBalance.toString())
-
-    // (Opsional) Disini bisa juga kirim data ke backend atau update status node lokal
-    console.log(`Loan approved for ${amount}. New Balance: ${newBalance}`)
+    if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) return;
+    setWalletBalance((prev) => {
+      const newBalance = Math.max(0, prev - amount);
+      localStorage.setItem('amartha_wallet_balance', newBalance.toString());
+      console.log(`Approved loan ${amount}. New wallet balance: ${newBalance}`);
+      return newBalance;
+    });
   }
+
 
   // Handler khusus untuk reset Desa saat Kabupaten berubah
   const handleKabupatenChange = (val: string) => {
@@ -39,32 +38,37 @@ function App() {
     setSelectedNode(null) // Tutup modal
   }
 
-  // Calculate filtered data for header stats
+  // Convert groups object from networkData into an array and compute filtered stats
+  const groupsArray = useMemo(() => Object.values(networkData.groups || {}), [] as any[])
+
   const filteredStats = useMemo(() => {
     if (!selectedDesa) {
       return { totalGroups: 0, totalMembers: 0 }
     }
 
-    const filteredNodes = networkData.nodes.filter(node => {
-      // Filter by Village
-      if (node.villageId !== selectedDesa) return false
-      // Status filter with Score Logic mapping (supaya konsisten dengan graph)
+    const filteredNodes = groupsArray.filter((node: any) => {
+      // Filter by village name stored in header.location_village
+      if (node.header?.location_village !== selectedDesa) return false
+
+      // Status filter with Score Logic mapping (consistent with NodeModal)
       if (selectedStatus !== 'all') {
-         if (selectedStatus === 'healthy') return node.trustScore > 80
-         if (selectedStatus === 'medium') return node.trustScore >= 25 && node.trustScore <= 80
-         if (selectedStatus === 'high') return node.trustScore < 25
-         return node.status === selectedStatus
+        if (selectedStatus === 'healthy') return node.header?.trust_score > 80
+        if (selectedStatus === 'medium') return node.header?.trust_score >= 25 && node.header?.trust_score <= 80
+        if (selectedStatus === 'high') return node.header?.trust_score < 25
+        // fallback to type matching (e.g., "toxic", "medium", "healthy")
+        return node.type === selectedStatus
       }
+
       return true
     })
 
-    const totalMembers = filteredNodes.reduce((sum, node) => sum + node.header.member_count, 0)
+    const totalMembers = filteredNodes.reduce((sum: number, node: any) => sum + (node.header?.member_count || 0), 0)
 
     return {
       totalGroups: filteredNodes.length,
       totalMembers
     }
-  }, [selectedDesa, selectedStatus])
+  }, [selectedDesa, selectedStatus, groupsArray])
 
   return (
     <div className="min-h-screen flex bg-gray-50 font-sans">
@@ -110,7 +114,7 @@ function App() {
           <NodeModal
             node={selectedNode}
             onClose={() => setSelectedNode(null)}
-            onApproveLoan={handleApproveLoan} // Pass fungsi wallet ke modal
+            onApprove={handleApproveLoan}
           />
         )}
       </main>
@@ -118,4 +122,4 @@ function App() {
   )
 }
 
-export default App
+export default App;
