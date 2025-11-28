@@ -71,13 +71,15 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
       // Calculate size based on member count
       const size = Math.min(Math.max(8 + (group.header?.member_count || 0) * 0.5, 12), 25)
 
-      // Add node to graphology
+      // Add node to graphology and store original attributes on the node
       graph.addNode(key, {
         label: group.header?.name || key,
         size: size,
         color: color,
         x: Math.random(),
-        y: Math.random()
+        y: Math.random(),
+        origColor: color,
+        origSize: size
       })
 
       // Store full node data for tooltip/modal
@@ -95,9 +97,12 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
         group.overview.neighbors.forEach((neighbor: Neighbor) => {
           if (neighbor.id && groups[neighbor.id]) {
             if (!graph.hasEdge(key, neighbor.id) && !graph.hasEdge(neighbor.id, key)) {
+              const edgeSize = neighbor.relation === 'Tetangga' ? 1 : 2
               graph.addEdge(key, neighbor.id, {
                 type: 'line',
-                size: neighbor.relation === 'Tetangga' ? 1 : 2
+                size: edgeSize,
+                origSize: edgeSize,
+                origColor: '#e2e8f0'
               })
             }
           }
@@ -176,13 +181,16 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
     sigmaRef.current = sigma
 
     // Event handlers
+    // Use functional updates so we don't read stale `selectedNodeId` when
+    // notifying the parent. Keep Sigma instance stable (don't recreate on selection).
     sigma.on('clickNode', ({ node }) => {
       const nodeInfo = nodeData.get(node)
       if (nodeInfo) {
-        setSelectedNodeId(prev => prev === node ? null : node)
-        if (onNodeSelect) {
-          onNodeSelect(selectedNodeId === node ? null : nodeInfo)
-        }
+        setSelectedNodeId((prev) => {
+          const next = prev === node ? null : node
+          if (onNodeSelect) onNodeSelect(next ? nodeInfo : null)
+          return next
+        })
       }
     })
 
@@ -202,7 +210,90 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
     return () => {
       sigma.kill()
     }
-  }, [filteredGraph, nodeData, onNodeSelect, selectedNodeId])
+  // Note: intentionally exclude `selectedNodeId` so Sigma isn't recreated
+  // when selection changes (that caused blank/white flicker). Sigma is
+  // created once per graph/nodeData change.
+  }, [filteredGraph, nodeData, onNodeSelect])
+
+  // Update visuals when selection changes. We mutate edge/node attributes
+  // (don't recreate Sigma) so selection highlights smoothly.
+  useEffect(() => {
+    const sigma = sigmaRef.current
+    if (!sigma) return
+
+    const g = sigma.getGraph()
+
+    const EDGE_HIGHLIGHT_COLOR = '#374151' // dark gray/charcoal, not too black
+
+    // Update edges: connected -> dark highlight color and thicker. Use stored
+    // original attributes (origColor/origSize) when restoring so highlights
+    // don't persist.
+    g.forEachEdge((edge, attr, source, target) => {
+      const isConnected = selectedNodeId && (source === selectedNodeId || target === selectedNodeId)
+      const origColor = g.getEdgeAttribute(edge, 'origColor') || attr.origColor || '#e2e8f0'
+      const origSize = g.getEdgeAttribute(edge, 'origSize') || attr.origSize || (attr.size || 1)
+      const origType = g.getEdgeAttribute(edge, 'origType') || attr.origType || (attr.type || 'line')
+
+      g.setEdgeAttribute(edge, 'color', isConnected ? EDGE_HIGHLIGHT_COLOR : origColor)
+      g.setEdgeAttribute(edge, 'size', isConnected ? Math.max(origSize, 3) : origSize)
+      g.setEdgeAttribute(edge, 'type', isConnected ? 'line' : origType)
+    })
+
+    // Update nodes: selected node -> keep original color but slightly larger.
+    // Unrelated nodes -> dimmed to gray. Related nodes -> original color.
+    g.forEachNode((node) => {
+      const isSelected = selectedNodeId === node
+      const originalColor = g.getNodeAttribute(node, 'origColor') || (nodeData.get(node) as any)?.color || '#94a3b8'
+      const originalSize = g.getNodeAttribute(node, 'origSize') || (nodeData.get(node) as any)?.size || 12
+
+      // Check if this node is related to the selected node
+      let isRelated = false
+      if (selectedNodeId) {
+        isRelated = g.hasEdge(selectedNodeId, node) || g.hasEdge(node, selectedNodeId)
+      }
+
+      // Keep selected and related nodes in original color; dim only unrelated nodes to gray
+      const nodeColor = (isSelected || isRelated || !selectedNodeId) ? originalColor : '#d1d5db'
+      g.setNodeAttribute(node, 'color', nodeColor)
+      g.setNodeAttribute(node, 'size', isSelected ? Math.min(originalSize * 1.4, 60) : originalSize)
+    })
+
+    sigma.refresh()
+  }, [selectedNodeId])
+
+  // Clear selection when user clicks outside the sigma container
+  // But do NOT clear if click is on the modal (NodeModal)
+  useEffect(() => {
+    const handleDocClick = (e: MouseEvent) => {
+      const container = containerRef.current
+      if (!container) return
+      const target = e.target as Node | null
+
+      // Check if the click target or any parent is the modal (has class 'fixed right-0' or similar)
+      // A safer approach: check if click is inside a modal-like element by looking for specific selectors
+      let isClickInModal = false
+      if (target) {
+        // Check if target or any parent has a data attribute indicating "don't reset selection"
+        let currentElement = target as HTMLElement | null
+        while (currentElement) {
+          if (currentElement.classList?.contains('z-50')) {
+            isClickInModal = true
+            break
+          }
+          currentElement = currentElement.parentElement
+        }
+      }
+
+      // If click is outside the sigma container AND not in modal, clear selection
+      if (target && !container.contains(target) && !isClickInModal) {
+        setSelectedNodeId(null)
+        if (onNodeSelect) onNodeSelect(null)
+      }
+    }
+
+    document.addEventListener('click', handleDocClick)
+    return () => document.removeEventListener('click', handleDocClick)
+  }, [onNodeSelect])
 
   // --- ZOOM CONTROLS ---
   const handleZoomIn = () => {

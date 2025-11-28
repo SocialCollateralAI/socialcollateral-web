@@ -74,7 +74,7 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
             {/* Medium Risk Confirmation Modal */}
             {showMediumRiskConfirm && (
               <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                <div className="font-medium text-yellow-800 mb-2">⚠️ Medium Risk Confirmation</div>
+                <div className="font-medium text-yellow-800 mb-2">⚠ Medium Risk Confirmation</div>
                 <div className="text-sm text-yellow-700 mb-3">This group has medium risk profile. Are you sure you want to approve?</div>
                 <div className="flex gap-2">
                   <button onClick={() => { handleLoanApproval(); setShowMediumRiskConfirm(false); }} className="px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded hover:bg-yellow-700">Yes, Approve</button>
@@ -161,7 +161,7 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
 
       {/* AUDIT FOOTER */}
       <div className="text-center">
-        <div className="text-xs text-gray-500">⚙️ {node.decision.last_audit.toUpperCase()}</div>
+        <div className="text-xs text-gray-500">⚙ {node.decision.last_audit.toUpperCase()}</div>
       </div>
     </div>
   );

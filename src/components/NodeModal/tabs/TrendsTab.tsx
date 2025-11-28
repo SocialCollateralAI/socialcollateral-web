@@ -65,28 +65,42 @@ const TrendsTab: React.FC<TrendsTabProps> = ({ node }) => {
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">STREAK</div>
+              <div className="text-xs text-black-400 uppercase tracking-wide font-medium mb-1">STREAK</div>
               <div className="text-sm font-bold text-gray-900">{node.trends.stats.streak}</div>
             </div>
           </div>
         </div>
 
         {/* Last Default Card */}
-        <div className="bg-white border border-gray-100 rounded-lg p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex-shrink-0">
-              <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center">
-                <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">LAST DEFAULT</div>
-              <div className="text-sm font-bold text-gray-900">{node.trends.stats.last_default}</div>
-            </div>
-          </div>
-        </div>
+      <div className="bg-white border border-gray-100 rounded-lg p-4">
+  <div className="flex items-start gap-3">
+
+    {/* Icon Box */}
+    <div className="flex-shrink-0">
+      <div className="w-10 h-10 rounded-lg bg-grey-200 flex items-center justify-center">
+        <svg className="w-6 h-6 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </div>
+    </div>
+
+    {/* Text Section */}
+    <div className="flex-1 min-w-0">
+      <div className="text-xs text-black-400 uppercase tracking-wide font-medium mb-1">
+        LAST DEFAULT
+      </div>
+      <div className="text-sm font-bold text-gray-900">
+        {node.trends.stats.last_default}
+      </div>
+    </div>
+
+  </div>
+</div>
+
 
         {/* Trend Card */}
         <div className="bg-white border border-gray-100 rounded-lg p-4">
@@ -97,7 +111,7 @@ const TrendsTab: React.FC<TrendsTabProps> = ({ node }) => {
               </svg>
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-1">TREND 6M</div>
+              <div className="text-xs text-black-400 uppercase tracking-wide font-medium mb-1">TREND 6M</div>
               <div className={`text-sm font-bold ${node.trends.stats.trend_dir === "up" ? "text-green-600" : "text-red-600"}`}>{node.trends.stats.trend_val}%</div>
             </div>
           </div>

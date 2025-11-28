@@ -49,7 +49,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
   ];
 
   return (
-    <div className="fixed right-0 top-0 w-152 h-screen bg-white shadow-xl border-l border-gray-200 flex flex-col z-50 animate-in slide-in-from-right duration-300">
+    <div className="fixed right-0 top-0 w-152 h-screen bg-white shadow-xl border-l border-gray-200 flex flex-col z-50 animate-in slide-in-from-right duration-300" onClick={(e) => e.stopPropagation()}>
       {/* Header with dynamic color */}
       <div className={`p-6 ${node.header.trust_score > 80 ? "bg-green-50 text-green-700" : node.header.trust_score >= 25 ? "bg-yellow-50 text-yellow-700" : "bg-red-50 text-red-700"} border-b border-gray-100 relative`}>
         <div className="flex items-start justify-between mb-2">
@@ -115,14 +115,25 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
         {tabs.map((tab) => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`flex-1 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`} type="button">
+          <button 
+            key={tab.id} 
+            onClick={(e) => {
+              e.stopPropagation()
+              setActiveTab(tab.id)
+            }} 
+            className={`flex-1 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`} 
+            type="button"
+          >
             {tab.label}
           </button>
         ))}
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+      <div 
+        className="flex-1 overflow-y-auto p-4 custom-scrollbar"
+        onClick={(e) => e.stopPropagation()}
+      >
         {activeTab === "overview" && <OverviewTab node={node} />}
         {activeTab === "trends" && <TrendsTab node={node} />}
         {activeTab === "insights" && <InsightsTab node={node} />}

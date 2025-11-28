@@ -83,7 +83,13 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
             <div className="text-xs text-gray-500">{node.insights.social_graph.risk_members.length} members flagged</div>
           </div>
           <div className="space-y-2">
-            {node.insights.social_graph.risk_members.map((member, index) => (
+            {node.insights.social_graph.risk_members
+              .sort((a, b) => {
+                const scoreA = parseInt(a.risk_score || '0', 10)
+                const scoreB = parseInt(b.risk_score || '0', 10)
+                return scoreA - scoreB // urutkan dari kecil ke besar
+              })
+              .map((member, index) => (
               <div key={index} className="flex items-center justify-between p-2 bg-red-50 border border-red-100 rounded">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
@@ -123,7 +129,10 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
               ))}
             </div>
             <div className="mt-4 border-t pt-3">
-              <button onClick={() => setImagePopup({ isOpen: true, imageUrl: homePreviewUrl, title: "Home Image - " + node.header.name })} className="w-full h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors overflow-hidden flex items-center justify-center">
+              <button onClick={(e) => {
+              e.stopPropagation()
+              setImagePopup({ isOpen: true, imageUrl: homePreviewUrl, title: "Home Image - " + node.header.name })
+            }} className="w-full h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors overflow-hidden flex items-center justify-center">
                 {homePreviewUrl ? (
                   <img src={homePreviewUrl} alt="Home Image" className="w-full h-full object-cover" />
                 ) : (
@@ -156,7 +165,10 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
               ))}
             </div>
             <div className="mt-4 border-t pt-3">
-              <button onClick={() => setImagePopup({ isOpen: true, imageUrl: bizPreviewUrl, title: "Business Image - " + node.header.name })} className="w-full h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors overflow-hidden flex items-center justify-center">
+              <button onClick={(e) => {
+              e.stopPropagation()
+              setImagePopup({ isOpen: true, imageUrl: bizPreviewUrl, title: "Business Image - " + node.header.name })
+            }} className="w-full h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors overflow-hidden flex items-center justify-center">
                 {bizPreviewUrl ? (
                   <img src={bizPreviewUrl} alt="Business Image" className="w-full h-full object-cover" />
                 ) : (
@@ -170,11 +182,17 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
 
       {/* Image Popup Modal */}
       {imagePopup.isOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4" onClick={() => setImagePopup({ isOpen: false, imageUrl: "", title: "" })}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4" onClick={(e) => {
+          e.stopPropagation()
+          setImagePopup({ isOpen: false, imageUrl: "", title: "" })
+        }}>
           <div className="relative max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between">
               <h3 className="text-lg font-semibold text-gray-900">{imagePopup.title}</h3>
-              <button onClick={() => setImagePopup({ isOpen: false, imageUrl: "", title: "" })} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
+              <button onClick={(e) => {
+                e.stopPropagation()
+                setImagePopup({ isOpen: false, imageUrl: "", title: "" })
+              }} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
                 <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
