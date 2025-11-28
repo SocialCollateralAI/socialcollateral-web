@@ -1,30 +1,23 @@
-import { useState } from 'react'
-import { MapPin, Users, Layers, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { useState } from 'react';
+import { MapPin, Users, Layers, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface HeaderProps {
-  activeLocation: string
-  totalGroups: number
-  totalMembers: number
+  activeLocation: string;
+  totalGroups: number;
+  totalMembers: number;
 }
 
 const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const getLocationName = (locationId: string) => {
-    const locationMap: Record<string, string> = {
-      'all': 'Semua Lokasi',
-      'bogor': 'Kabupaten Bogor',
-      'bekasi': 'Kabupaten Bekasi',
-      'karawang': 'Kabupaten Karawang',
-      'sukamaju': 'Desa Sukamaju',
-      'makmur': 'Desa Makmur',
-      'sejahtera': 'Desa Sejahtera',
-      'ciherang': 'Desa Ciherang'
+  const getLocationDisplay = (location: string) => {
+    if (!location || location === 'all' || location === '') {
+      return 'Semua Lokasi';
     }
-    return locationMap[locationId] || locationId || 'Pilih Lokasi'
-  }
+    return location; // return nama desa (ex: "Desa Ciseeng")
+  };
 
-  const formatNumber = (num: number) => new Intl.NumberFormat('id-ID').format(num)
+  const formatNumber = (num: number) => new Intl.NumberFormat('id-ID').format(num);
 
   return (
     <div className="absolute p-4 z-30">
@@ -34,7 +27,7 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
           ${isExpanded ? 'min-w-[280px]' : 'min-w-[200px]'}
         `}
       >
-        {/* --- HEADER SECTION (Always Visible) --- */}
+        {/* --- HEADER SECTION --- */}
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 transition-transform duration-300 ${isExpanded ? 'scale-110' : ''}`}>
@@ -42,7 +35,7 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
             </div>
             <div>
               <h1 className="text-sm font-bold text-gray-900 leading-tight">
-                {getLocationName(activeLocation)}
+                {getLocationDisplay(activeLocation)}
               </h1>
               <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide mt-0.5">
                 Live Monitoring
@@ -50,13 +43,12 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
             </div>
           </div>
 
-          {/* Chevron Indicator */}
           <div className="text-gray-400">
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </div>
         </div>
 
-        {/* --- DETAILS SECTION (Collapsible) --- */}
+        {/* --- DETAILS SECTION --- */}
         <div
           className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
             isExpanded
@@ -65,7 +57,6 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
           }`}
         >
           <div className="min-h-0">
-             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
                  <div className="flex items-center gap-1.5 text-gray-500 mb-1">
@@ -88,7 +79,6 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
               </div>
             </div>
 
-            {/* Last Update Badge */}
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-50 border border-gray-100">
               <Calendar className="w-3 h-3 text-gray-400" />
               <span className="text-[10px] text-gray-500 font-medium">
@@ -100,7 +90,7 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
 
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

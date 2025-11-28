@@ -1,47 +1,12 @@
-import { useState, useMemo, useEffect } from 'react'
-import Sidebar from './components/Sidebar'
-import Header from './components/Header'
+import { useState, useMemo } from 'react'
+import Sidebar from './components/Sidebar/Sidebar'
+import Header from './components/header/Header'
 import NetworkGraph from './components/NetworkGraph'
-import NodeModal from './components/NodeModal'
+import NodeModal from './components/NodeModal/index'
 import networkData from './data/networkData.json'
-import fetchGraph from './api/api'
-
-// import { getAPIClient } from './api/api'
 
 function App() {
-  
-  // API state for fetched graph
-  const [apiData, setApiData] = useState<any | null>(null)
-  const [apiLoading, setApiLoading] = useState<boolean>(false)
-  const [apiError, setApiError] = useState<any | null>(null)
-
-  // Pemanggilan API menggunakan `fetchGraph` dari `src/api/api.tsx`
-  useEffect(() => {
-    let mounted = true
-    const load = async () => {
-      setApiLoading(true)
-      try {
-        const data = await fetchGraph()
-        if (mounted) {
-          setApiData(data)
-          console.log('API Data loaded', data)
-        }
-      } catch (err) {
-        if (mounted) {
-          setApiError(err)
-          console.error('Error loading API data', err)
-        }
-      } finally {
-        if (mounted) setApiLoading(false)
-      }
-    }
-
-    load()
-    return () => { mounted = false }
-  }, [])
-
-  // Fetch graph on mount and store result in state
-  // 1. State dipisah untuk Kabppaten dan Desa
+  // 1. State dipisah untuk Kabupaten dan Desa
   const [selectedKabupaten, setSelectedKabupaten] = useState('')
   const [selectedDesa, setSelectedDesa] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('all')
@@ -74,19 +39,16 @@ function App() {
   }
 
   // Convert groups object from networkData into an array and compute filtered stats
-  const groupsArray = useMemo(() => Object.values((networkData as any)?.groups || {}), [networkData]);
-  console.log("Groups Array:", groupsArray);
+  const groupsArray = useMemo(() => Object.values(networkData.groups || {}), [] as any[])
 
   const filteredStats = useMemo(() => {
-    // console.log("Calculating filtered stats with:", { selectedDesa, selectedStatus });
     if (!selectedDesa) {
       return { totalGroups: 0, totalMembers: 0 }
     }
 
     const filteredNodes = groupsArray.filter((node: any) => {
-      console.log("Evaluating node:", node);
       // Filter by village name stored in header.location_village
-      if (node.attribute?.cluster !== selectedDesa) return false
+      if (node.header?.location_village !== selectedDesa) return false
 
       // Status filter with Score Logic mapping (consistent with NodeModal)
       if (selectedStatus !== 'all') {
@@ -110,6 +72,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex bg-gray-50 font-sans">
+      {/* Sidebar Logic */}
       <Sidebar
         selectedKabupaten={selectedKabupaten}
         onKabupatenChange={handleKabupatenChange}
@@ -120,6 +83,7 @@ function App() {
         walletBalance={walletBalance} // Balance dinamis dari state
       />
 
+      {/* Header Logic */}
       <main className={`flex-1 flex flex-col transition-all duration-300 ${selectedNode ? 'pr-96' : ''}`}>
         <Header
           activeLocation={selectedDesa || 'Select Location'}
@@ -127,13 +91,13 @@ function App() {
           totalMembers={filteredStats.totalMembers}
         />
 
+         {/* Network Graph Logic */}
         <div className="flex-1 relative">
           {selectedDesa ? (
             <NetworkGraph
               selectedLocation={selectedDesa}
               selectedStatus={selectedStatus}
               onNodeSelect={setSelectedNode}
-              apiData={apiData}
             />
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-gray-400 animate-in fade-in">
