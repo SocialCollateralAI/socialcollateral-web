@@ -237,53 +237,6 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
         style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}
       />
 
-      {/* Floating Tooltip */}
-      {hoveredNode && (() => {
-        const node = nodeData.get(hoveredNode)
-        if (!node) return null
-        return (
-          <div className="absolute top-4 left-4 bg-white/95 backdrop-blur shadow-xl rounded-xl p-4 border border-gray-100 z-30 min-w-[200px] animate-in fade-in slide-in-from-left-2 duration-200">
-            <div className="flex items-center justify-between mb-2">
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                node.type === 'toxic' ? 'bg-red-100 text-red-600' : 
-                node.type === 'healthy' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'
-              }`}>
-                {node.header.risk_badge}
-              </span>
-              <span className="text-xs font-bold text-gray-400">#{node.id}</span>
-            </div>
-            
-            <h3 className="text-sm font-bold text-gray-800 mb-0.5">{node.header.name}</h3>
-            <div className="flex items-center text-xs text-gray-500 mb-3">
-              <MapPin size={12} className="mr-1" />
-              {node.header.location_village}, {node.header.location_city}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
-              <div>
-                <div className="text-[10px] text-gray-400 mb-1 flex items-center">
-                  <TrendingUp size={10} className="mr-1"/> Trust Score
-                </div>
-                <div className={`text-xl font-bold ${
-                  node.header.trust_score > 80 ? 'text-green-600' :
-                  node.header.trust_score >= 25 ? 'text-yellow-600' : 'text-red-600'
-                }`}>{node.header.trust_score}</div>
-              </div>
-              <div>
-                <div className="text-[10px] text-gray-400 mb-1 flex items-center">
-                  <Users size={10} className="mr-1"/> Members
-                </div>
-                <div className="text-xl font-bold text-slate-700">{node.header.member_count}</div>
-              </div>
-            </div>
-            
-            <div className="mt-3 pt-2 border-t border-gray-50">
-              <div className="text-[9px] text-gray-400 uppercase tracking-wide">Click to view details</div>
-            </div>
-          </div>
-        )
-      })()}
-
       {/* Zoom Controls */}
       <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-20">
         <div className="bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden flex flex-col">
