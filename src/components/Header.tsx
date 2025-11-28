@@ -27,7 +27,7 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
   const formatNumber = (num: number) => new Intl.NumberFormat('id-ID').format(num)
 
   return (
-    <div className="absolute p-4 z-30">
+    <div className="absolute left-80  p-4 z-30">
       <div
         onClick={() => setIsExpanded(!isExpanded)}
         className={`bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-white
