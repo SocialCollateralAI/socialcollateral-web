@@ -1248,9 +1248,15 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
                 <div className="space-y-2">
                   {node.insights.social_graph.risk_members
                     .slice()
-                    .sort((a, b) => (Number(b.risk_score) || 0) - (Number(a.risk_score) || 0))
+                    .sort((a, b) => {
+                      const parseScore = (v: any) => {
+                        const n = parseFloat(String(v).replace(/[^0-9.-]+/g, ""))
+                        return isNaN(n) ? 0 : n
+                      }
+                      return parseScore(b.risk_score) - parseScore(a.risk_score)
+                    })
                     .map((member, index) => {
-                      const key = member.id || member.name || index
+                      const key = member.name || index
                       const rawScore = member.risk_score
                       const displayScore = typeof rawScore === 'string'
                         ? rawScore.includes('%') ? rawScore : `${rawScore}%`
