@@ -469,9 +469,6 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
                   <span className="text-xs font-bold uppercase tracking-wide">
                     Payment History
                   </span>
-                  <span className="text-xs font-bold uppercase tracking-wide">
-                    Social Context
-                  </span>
                 </div>
                 <div className="relative">
                   <div className="flex bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
@@ -485,18 +482,6 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
                       }`}
                       style={{
                         width: `${node.overview.primary_driver.payment_score}%`,
-                      }}
-                    ></div>
-                    <div
-                      className={`h-4 transition-all duration-700 ${
-                        node.header.trust_score > 80
-                          ? "bg-emerald-500"
-                          : node.header.trust_score >= 25
-                          ? "bg-red-500"
-                          : "bg-red-500"
-                      }`}
-                      style={{
-                        width: `${node.overview.primary_driver.social_score}%`,
                       }}
                     ></div>
                   </div>
@@ -515,6 +500,29 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
                         {node.overview.primary_driver.payment_score}%
                       </span>
                     </div>
+                  </div>
+                </div>
+                <div className="flex justify-between text-gray-600 gap-3">
+                  <span className="text-xs font-bold uppercase tracking-wide">
+                    Social Context
+                  </span>
+                </div>
+                <div className="relative">
+                  <div className="flex bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
+                    <div
+                      className={`h-4 transition-all duration-700 ${
+                        node.header.trust_score > 80
+                          ? "bg-emerald-500"
+                          : node.header.trust_score >= 25
+                          ? "bg-red-500"
+                          : "bg-red-500"
+                      }`}
+                      style={{
+                        width: `${node.overview.primary_driver.social_score}%`,
+                      }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between mt-2">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-700 font-bold">
                         {node.overview.primary_driver.social_score}%
@@ -1080,7 +1088,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
             </div>
 
             {/* SEASONALITY DETECTION HEATMAP */}
-            <div className="bg-white border border-gray-200 rounded-lg p-6">
+            {/* <div className="bg-white border border-gray-200 rounded-lg p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <svg
@@ -1103,7 +1111,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
                 <div className="text-xs text-gray-500">12 Month Lookback</div>
               </div>
 
-              {/* Simplified Heatmap Grid */}
+              {/* Simplified Heatmap Grid
               <div className="grid grid-cols-12 gap-2 mb-3">
                 {node.trends.seasonality_heatmap.map((level, i) => {
                   const getHeatmapColor = (value: number) => {
@@ -1130,7 +1138,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
               <div className="text-xs text-gray-500 italic">
                 Heatmap indicates payment latency intensity per month.
               </div>
-            </div>
+            </div> */}
           </div>
         )}
 
@@ -1238,29 +1246,45 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
                 </div>
 
                 <div className="space-y-2">
-                  {node.insights.social_graph.risk_members.map(
-                    (member, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between p-2 bg-red-50 border border-red-100 rounded"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {member.name}
-                            </div>
-                            <div className="text-xs text-gray-600">
-                              {member.hops}
+                  {node.insights.social_graph.risk_members
+                    .slice()
+                    .sort((a, b) => (Number(b.risk_score) || 0) - (Number(a.risk_score) || 0))
+                    .map((member, index) => {
+                      const key = member.id || member.name || index
+                      const rawScore = member.risk_score
+                      const displayScore = typeof rawScore === 'string'
+                        ? rawScore.includes('%') ? rawScore : `${rawScore}%`
+                        : `${rawScore}%`
+
+                      // Normalize hops display: if numeric, append 'hop'/'hops'
+                      let hopsDisplay = member.hops
+                      const hopsNum = Number(String(member.hops).replace(/[^0-9]/g, ''))
+                      if (!isNaN(hopsNum) && hopsNum > 0) {
+                        hopsDisplay = `${hopsNum} hop${hopsNum === 1 ? '' : 's'}`
+                      }
+
+                      return (
+                        <div
+                          key={key}
+                          className="flex items-center justify-between p-2 bg-red-50 border border-red-100 rounded"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-red-500 rounded-full" />
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {member.name}
+                              </div>
+                              <div className="text-xs text-gray-600">
+                                {hopsDisplay}
+                              </div>
                             </div>
                           </div>
+                          <div className="text-xs font-bold text-red-600">
+                            {displayScore} trust
+                          </div>
                         </div>
-                        <div className="text-xs font-bold text-red-600">
-                          {member.risk_score} trust
-                        </div>
-                      </div>
-                    )
-                  )}
+                      )
+                    })}
                 </div>
               </div>
             </div>
