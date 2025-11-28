@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Node } from './types';
 import OverviewTab from './tabs/OverviewTab';
 import TrendsTab from './tabs/TrendsTab';
@@ -17,6 +17,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
   const [showSupervisorOverride, setShowSupervisorOverride] = useState(false);
   const [supervisorPasskey, setSupervisorPasskey] = useState("");
   const [showMediumRiskConfirm, setShowMediumRiskConfirm] = useState(false);
+  const tabContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (node) {
@@ -28,6 +29,13 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
       }
     }
   }, [node]);
+
+  // Reset scroll position saat tab berubah
+  useEffect(() => {
+    if (tabContentRef.current) {
+      tabContentRef.current.scrollTop = 0;
+    }
+  }, [activeTab]);
 
   const handleLoanApproval = () => {
     if (!node) return;
@@ -131,6 +139,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
 
       {/* Tab Content */}
       <div 
+        ref={tabContentRef}
         className="flex-1 overflow-y-auto p-4 custom-scrollbar"
         onClick={(e) => e.stopPropagation()}
       >

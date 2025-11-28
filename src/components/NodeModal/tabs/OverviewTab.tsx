@@ -8,6 +8,7 @@ interface OverviewTabProps {
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
    const [radarSort, setRadarSort] = useState("toxic-first");
+   const [showAllNeighbors, setShowAllNeighbors] = useState(false);
 
    // Helper untuk warna progress bar
    // const getProgressColor = (score: number) => {
@@ -230,6 +231,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                   <h4 className="text-sm font-bold text-gray-900 uppercase">
                      RADAR KONEKSI
                   </h4>
+                  <span className="text-xs text-gray-500 ml-2">
+                     ({node.overview.neighbors.length} relasi)
+                  </span>
                </div>
                <div className="relative">
                   <select
@@ -244,30 +248,62 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-96 overflow-y-auto">
                {node.overview.neighbors
                   .sort((a, b) => {
                      if (radarSort === "toxic-first") {
-                        if (a.risk === "toxic" && b.risk !== "toxic") return -1;
-                        if (a.risk !== "toxic" && b.risk === "toxic") return 1;
-                     } else if (radarSort === "health-first") {
-                        if (a.risk === "healthy" && b.risk !== "healthy") return -1;
-                        if (a.risk !== "healthy" && b.risk === "healthy") return 1;
-                     } else if (radarSort === "location") {
+                        // Urutan tetap: TOXIC → MEDIUM → HEALTHY (lengkap, tidak skip)
+                        const riskOrder = { toxic: 0, medium: 1, healthy: 2 };
+                        const riskA = riskOrder[a.risk as keyof typeof riskOrder] ?? 3;
+                        const riskB = riskOrder[b.risk as keyof typeof riskOrder] ?? 3;
+                        if (riskA !== riskB) return riskA - riskB;
+                        // Secondary: by distance
                         const distanceA = parseFloat(a.distance.replace("km", ""));
                         const distanceB = parseFloat(b.distance.replace("km", ""));
                         return distanceA - distanceB;
+                     } else if (radarSort === "health-first") {
+                        // Urutan: HEALTHY → MEDIUM → TOXIC (lengkap, tidak skip)
+                        const riskOrder = { healthy: 0, medium: 1, toxic: 2 };
+                        const riskA = riskOrder[a.risk as keyof typeof riskOrder] ?? 3;
+                        const riskB = riskOrder[b.risk as keyof typeof riskOrder] ?? 3;
+                        if (riskA !== riskB) return riskA - riskB;
+                        // Secondary: by distance
+                        const distanceA = parseFloat(a.distance.replace("km", ""));
+                        const distanceB = parseFloat(b.distance.replace("km", ""));
+                        return distanceA - distanceB;
+                     } else if (radarSort === "location") {
+                        // Primary: by distance, secondary: by risk (toxic first)
+                        const distanceA = parseFloat(a.distance.replace("km", ""));
+                        const distanceB = parseFloat(b.distance.replace("km", ""));
+                        if (distanceA !== distanceB) return distanceA - distanceB;
+                        // Secondary: by risk (toxic first)
+                        const riskOrder = { toxic: 0, medium: 1, healthy: 2 };
+                        const riskA = riskOrder[a.risk as keyof typeof riskOrder] ?? 3;
+                        const riskB = riskOrder[b.risk as keyof typeof riskOrder] ?? 3;
+                        return riskA - riskB;
                      }
                      return 0;
                   })
                   .map((neighbor, index) => (
                      <div
                         key={index}
-                        className={`flex items-center justify-between p-2 rounded ${neighbor.risk === "toxic" ? "bg-red-50 border border-red-100" : "bg-green-50 border border-green-100"}`}
+                        className={`flex items-center justify-between p-2 rounded ${
+                           neighbor.risk === "toxic"
+                              ? "bg-red-50 border border-red-100"
+                              : neighbor.risk === "medium"
+                                ? "bg-yellow-50 border border-yellow-100"
+                                : "bg-green-50 border border-green-100"
+                        }`}
                      >
                         <div className="flex items-center gap-3">
                            <div
-                              className={`w-2 h-2 rounded-full ${neighbor.risk === "toxic" ? "bg-red-500" : "bg-green-500"}`}
+                              className={`w-2 h-2 rounded-full ${
+                                 neighbor.risk === "toxic"
+                                    ? "bg-red-500"
+                                    : neighbor.risk === "medium"
+                                      ? "bg-yellow-500"
+                                      : "bg-green-500"
+                              }`}
                            ></div>
                            <div>
                               <div className="font-medium text-gray-900">
@@ -281,6 +317,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                         {neighbor.risk === "toxic" && (
                            <div className="px-2 py-1 bg-red-100 border border-red-400 text-red-700 text-xs font-semibold rounded uppercase">
                               CONTAGION RISK
+                           </div>
+                        )}
+                        {neighbor.risk === "medium" && (
+                           <div className="px-2 py-1 bg-yellow-100 border border-yellow-400 text-yellow-700 text-xs font-semibold rounded uppercase">
+                              MEDIUM RISK
                            </div>
                         )}
                      </div>
