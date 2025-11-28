@@ -10,11 +10,11 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
    const [radarSort, setRadarSort] = useState("toxic-first");
 
    // Helper untuk warna progress bar
-   const getProgressColor = (score: number) => {
-      if (score > 80) return "bg-emerald-500";
-      if (score >= 25) return "bg-yellow-500";
-      return "bg-red-500";
-   };
+   // const getProgressColor = (score: number) => {
+   //    if (score > 80) return "bg-emerald-500";
+   //    if (score >= 25) return "bg-yellow-500";
+   //    return "bg-red-500";
+   // };
 
    return (
       <div className="space-y-6 animate-in fade-in duration-300">
