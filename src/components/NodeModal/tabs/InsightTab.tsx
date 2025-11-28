@@ -53,7 +53,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
           </div>
 
           <div className="p-3 rounded">
-            <h5 className="text-sm font-bold text-gray-400 mb-2">WHAT-IF SIMULATION: {node.insights.prediction.what_if.scenario.toUpperCase()}</h5>
+            <h5 className="text-sm font-bold mb-2">WHAT-IF SIMULATION: {node.insights.prediction.what_if.scenario.toUpperCase()}</h5>
             <div className="flex items-center gap-4">
               <div className="bg-gray-100 rounded-md p-2 py-1">
                 <div className="text-sm font-semibold text-gray-600">Current: <span className="font-bold">{node.insights.prediction.what_if.current_score}%</span></div>
@@ -64,7 +64,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
                 <div className="text-xs text-green-600 p-2 py-1">(+{node.insights.prediction.what_if.improvement_pct}% Quality)</div>
               </div>
             </div>
-            <div className="mt-8 p-2 italic border border-gray-200 rounded-md text-xs text-gray-800">💡 {node.insights.recommendation_text}</div>
+            <div className="mt-8 p-2 italic border border-purple-400 bg-purple-100 rounded-md text-xs font-bold">💡 {node.insights.recommendation_text}</div>
           </div>
         </div>
       </div>

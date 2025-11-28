@@ -57,7 +57,7 @@ const Sidebar = ({
             <h2 className="text-lg font-bold text-gray-900 tracking-tight">SocialColateral AI</h2>
           </div>
           <span className="bg-green-50 text-green-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-100 tracking-wide">
-            DEMO
+            MVP DEMO
           </span>
         </div>
       </div>

@@ -24,25 +24,18 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
   supervisorPasskey,
   setSupervisorPasskey,
 }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* RECOMMENDED CAP */}
       <div className="bg-white border border-gray-100 rounded-lg p-6 text-center">
         <div className="text-sm text-gray-500 uppercase tracking-wide font-bold mb-2">RECOMMENDED CAP</div>
-        <div className="text-4xl font-bold text-gray-900 mb-1">{formatCurrency(node.overview.max_plafon_recommendation)}</div>
+        <div className="text-4xl font-bold text-gray-900 mb-1">25.000.0000</div>
         <div className="text-sm text-red-500">↘ Reduces Global Budget</div>
       </div>
 
       {/* AI DECISION DRAFTER */}
-      <div className="bg-white border border-gray-100 rounded-lg p-4">
+      {/*<div className="bg-white border border-gray-100 rounded-lg p-4">
         <div className="flex items-center gap-2 mb-4">
           <svg className="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
@@ -65,7 +58,7 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
             <span className="text-sm font-medium text-gray-700">Rejection</span>
           </button>
         </div>
-      </div>
+      </div>*/}
 
       {/* APPROVE LOAN BUTTON WITH LOGIC */}
       <div className="space-y-4">
@@ -129,7 +122,7 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
                     setShowMediumRiskConfirm(true);
                   }
                 }}
-                className="w-full py-4 text-lg font-bold rounded-lg transition-colors flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
+                className="w-full py-4 text-lg font-bold rounded-lg transition-colors flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-400 text-white"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -161,7 +154,7 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
 
       {/* AUDIT FOOTER */}
       <div className="text-center">
-        <div className="text-xs text-gray-500">⚙ {node.decision.last_audit.toUpperCase()}</div>
+        <div className="text-xs text-gray-500">⚙ TERAKHIR DIAUDIT OLEH FIELD {node.decision.last_audit.toUpperCase()}</div>
       </div>
     </div>
   );
