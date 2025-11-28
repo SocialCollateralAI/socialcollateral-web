@@ -237,6 +237,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({ selectedLocation, selectedS
         style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}
       />
 
+
       {/* Zoom Controls */}
       <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-20">
         <div className="bg-white rounded-lg shadow-lg border border-gray-100 overflow-hidden flex flex-col">
