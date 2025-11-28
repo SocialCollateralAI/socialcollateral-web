@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Node } from "../types";
+import formatCurrency from "../../../utils/formatCurrency";
 
 interface OverviewTabProps {
    node: Node;
@@ -7,14 +8,6 @@ interface OverviewTabProps {
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
    const [radarSort, setRadarSort] = useState("toxic-first");
-
-   const formatCurrency = (amount: number) => {
-      return new Intl.NumberFormat("id-ID", {
-         style: "currency",
-         currency: "IDR",
-         minimumFractionDigits: 0,
-      }).format(amount);
-   };
 
    // Helper untuk warna progress bar
    const getProgressColor = (score: number) => {

@@ -1,17 +1,11 @@
 import { Wallet } from 'lucide-react';
+import formatCurrency from '../../utils/formatCurrency';
 
 interface WalletCardProps {
   balance: number;
 }
 
 const WalletCard = ({ balance }: WalletCardProps) => {
-  const formatRupiah = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount).replace('Rp', 'Rp ');
-  };
 
   return (
     <div className="relative w-full bg-white border border-gray-100 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] overflow-hidden group transition-all duration-300 hover:shadow-[0_8px_25px_rgba(147,51,234,0.08)] hover:border-purple-100 hover:-translate-y-1">
@@ -23,7 +17,7 @@ const WalletCard = ({ balance }: WalletCardProps) => {
           <span className="text-[10px] font-bold uppercase tracking-widest">Amartha Wallet</span>
         </div>
         <div className="text-2xl font-bold text-gray-900 tracking-tight">
-          {formatRupiah(balance)}
+          {formatCurrency(balance)}
         </div>
       </div>
 
