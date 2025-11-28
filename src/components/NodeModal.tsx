@@ -777,7 +777,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
                 }`}
               >
                 <LineChart
-                  dataset={node.trends.repayment_history}
+                  dataset={node.trends.repayment_history || []}
                   xAxis={[
                     {
                       scaleType: "point",
@@ -1025,7 +1025,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
               {/* MUI X-Charts Bar Chart */}
               <div className="h-56 w-full bg-gray-50 rounded-lg py-2">
                 <BarChart
-                  dataset={node.trends.asset_growth}
+                  dataset={node.trends.asset_growth || []}
                   xAxis={[
                     {
                       scaleType: "band",

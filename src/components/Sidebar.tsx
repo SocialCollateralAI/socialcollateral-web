@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import networkData from '../data/networkData.json';
+import fetchGraph from '../api/api';
 import { Activity, Filter, Wallet, User, ChevronDown, Check, LayoutDashboard } from 'lucide-react';
 
 interface SidebarProps {
@@ -101,9 +102,37 @@ const Sidebar = ({
   onStatusChange,
   walletBalance
 }: SidebarProps) => {
+  // const [apiData, setApiData] = useState<any | null>(null)
+  //   const [apiLoading, setApiLoading] = useState<boolean>(false)
+  //   const [apiError, setApiError] = useState<any | null>(null)
+  
+  //   // Pemanggilan API menggunakan `fetchGraph` dari `src/api/api.tsx`
+  //   useEffect(() => {
+  //     let mounted = true
+  //     const load = async () => {
+  //       setApiLoading(true)
+  //       try {
+  //         const data = await fetchGraph()
+  //         if (mounted) {
+  //           setApiData(data)
+  //           console.log('API Data loaded', data)
+  //         }
+  //       } catch (err) {
+  //         if (mounted) {
+  //           setApiError(err)
+  //           console.error('Error loading API data', err)
+  //         }
+  //       } finally {
+  //         if (mounted) setApiLoading(false)
+  //       }
+  //     }
+  
+  //     load()
+  //     return () => { mounted = false }
+  //   }, [])
 
   // Derive options dynamically from networkData.groups
-  const groupsArray = useMemo(() => Object.values((networkData as any).groups || {}), [] as any[]);
+  const groupsArray = useMemo(() => Object.values((networkData as any)?.groups || {}), [networkData]);
 
   const kabupatenOptions = useMemo(() => {
     const cities = Array.from(new Set(groupsArray.map((g: any) => g.header?.location_city).filter(Boolean)));
