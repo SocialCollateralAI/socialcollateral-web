@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { Activity, Filter, User } from 'lucide-react';
 import CustomSelect from '../../common/CustomSelect';
 import WalletCard from './WalletCard';
@@ -51,17 +51,26 @@ const Sidebar = ({
     const opts: { id: string; label: string }[] = [{ id: 'all', label: 'All Status' }];
     const hasHealthy = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) > 80);
     const hasMedium = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) >= 25 && (g.header?.trust_score ?? 0) <= 80);
-    const hasHigh = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) < 25);
+    const hasToxic = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) < 25);
 
-    if (hasHealthy) opts.push({ id: 'healthy', label: 'Healthy Group' });
-    if (hasMedium) opts.push({ id: 'medium', label: 'Medium Risk' });
-    if (hasHigh) opts.push({ id: 'high', label: 'High Risk' });
+    if (hasHealthy) opts.push({ id: 'healthy', label: 'Healthy' });
+    if (hasMedium) opts.push({ id: 'medium', label: 'Medium' });
+    // Use `toxic` id to match node `type` values and NetworkGraph logic
+    if (hasToxic) opts.push({ id: 'toxic', label: 'Toxic' });
 
     return opts;
   }, [groupsArray]);
 
   const isDesaDisabled = !selectedKabupaten;
   const isStatusDisabled = !selectedDesa;
+
+  // If selectedStatus is not available in the current options (e.g., when location changes), reset it to 'all'
+  useEffect(() => {
+    const available = statusOptions.map((o) => o.id);
+    if (!available.includes(selectedStatus)) {
+      onStatusChange('all');
+    }
+  }, [selectedStatus, statusOptions, onStatusChange]);
 
   return (
     <aside className="w-80 min-h-screen bg-white text-gray-800 flex flex-col border-r border-gray-100 font-sans shadow-[4px_0_24px_rgba(0,0,0,0.02)] shrink-0 z-20">

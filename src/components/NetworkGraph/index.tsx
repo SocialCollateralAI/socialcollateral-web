@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react'
-import { Sigma } from 'sigma'
+import Sigma from 'sigma'
+import type SigmaType from 'sigma'
 import { circular } from 'graphology-layout'
 import forceAtlas2 from 'graphology-layout-forceatlas2'
 import type { NetworkGraphProps } from './NetworkGraph.types'
@@ -14,7 +15,8 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
   apiData 
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const sigmaRef = useRef<Sigma | null>(null)
+  const sigmaRef = useRef<SigmaType | null>(null)
+  const sigmaReadyRef = useRef(false)
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
 
   // 1. Get Data
@@ -99,8 +101,20 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
         defaultEdgeColor: "#e2e8f0"
       })
 
+      // mark not-ready until fully wired
+      sigmaReadyRef.current = false
       sigmaRef.current = sigma
-      console.log('Sigma initialized successfully')
+      console.log('Sigma initialized successfully (instance created)')
+
+      // small tick to allow internal Sigma setup before marking ready
+      setTimeout(() => {
+        sigmaReadyRef.current = true
+        try {
+          sigma.refresh()
+        } catch (e) {
+          console.warn('Refresh after init failed:', e)
+        }
+      }, 0)
 
     } catch (error) {
       console.error('Sigma initialization failed:', error)
@@ -112,8 +126,8 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
 
     const sigma = sigmaRef.current
 
-    // Click Event Handler
-    sigma.on('clickNode', ({ node }) => {
+    // Click Event Handlers (store to remove on cleanup)
+    const handleClickNode = ({ node }: { node: string }) => {
       const nodeInfo = nodeData.get(node)
       if (nodeInfo) {
         setSelectedNodeId((prev) => {
@@ -122,14 +136,30 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
           return next
         })
       }
-    })
+    }
 
-    sigma.on('clickStage', () => {
+    const handleClickStage = () => {
       setSelectedNodeId(null)
       if (onNodeSelect) onNodeSelect(null)
-    })
+    }
+
+    try {
+      sigma.on('clickNode', handleClickNode)
+      sigma.on('clickStage', handleClickStage)
+    } catch (e) {
+      console.warn('Failed to attach sigma event handlers:', e)
+    }
 
     return () => {
+      // remove handlers first
+      try {
+        sigma.off && sigma.off('clickNode', handleClickNode)
+        sigma.off && sigma.off('clickStage', handleClickStage)
+      } catch (e) {
+        // ignore
+      }
+
+      // kill instance
       if (sigmaRef.current) {
         try {
           sigmaRef.current.kill()
@@ -137,6 +167,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
           console.log('Error during Sigma cleanup:', e)
         }
         sigmaRef.current = null
+        sigmaReadyRef.current = false
       }
     }
     }
@@ -159,7 +190,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
 
   // 4. Handle Visual Highlighting (via Hook)
   useGraphHighlighting({
-    sigmaInstance: sigmaRef.current,
+    sigmaInstance: sigmaReadyRef.current ? sigmaRef.current : null,
     selectedNodeId,
     nodeData
   })

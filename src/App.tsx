@@ -89,11 +89,11 @@ function App() {
         if (selectedStatus === 'healthy') return node.header?.trust_score > 80
         if (selectedStatus === 'medium')
           return (
-            node.header?.trust_score >= 25 &&
+            node.header?.trust_score > 25 &&
             node.header?.trust_score <= 80
           )
-        if (selectedStatus === 'high')
-          return node.header?.trust_score < 25
+        if (selectedStatus === 'toxic')
+          return node.header?.trust_score <= 25
 
         return node.type === selectedStatus
       }

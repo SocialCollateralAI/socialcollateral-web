@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Node } from '../types';
 import { X, Check } from 'lucide-react';
 import formatCurrency from '../../../utils/formatCurrency';
@@ -28,9 +28,19 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
 }) => {
   const [isRejected, setIsRejected] = useState(false);
 
+  // Safe guards: ensure trust_score exists
+  const trustScore = node?.header?.trust_score ?? 0;
   // LOGIC: High Risk (Trust Score < 25) cap 0, sisanya 25.000.000
-  const isHighRisk = node.header.trust_score < 25;
+  const isHighRisk = trustScore < 25;
   const recommendedCap = isHighRisk ? 0 : 25000000;
+
+  // Reset local state when the node prop changes to avoid stale state/errors
+  useEffect(() => {
+    setIsRejected(false);
+    setShowSupervisorOverride(false);
+    setShowMediumRiskConfirm(false);
+    setSupervisorPasskey("");
+  }, [node]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -89,7 +99,7 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
             )}
 
             {/* Main Approve Button Logic */}
-            {node.header.trust_score < 25 ? (
+            {trustScore <= 25 ? (
               <div className="w-full">
                 {!showSupervisorOverride ? (
                   <div className="w-full py-6 px-2 rounded-lg bg-gray-50 border border-gray-200 text-center">
@@ -101,7 +111,7 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
                       </div>
                     </div>
                     <div className="text-lg font-bold text-gray-500 mb-2">APPROVAL LOCKED (HIGH RISK)</div>
-                    <button onClick={() => setShowSupervisorOverride(true)} className="text-sm text-purple-600 hover:text-purple-800 font-medium underline hover:cursor-pointer">Request Supervisor Override</button>
+                    <div className="text-sm text-gray-600">Supervisor override is not permitted for high-risk accounts.</div>
                   </div>
                 ) : (
                   <div className="w-full py-6 px-6 rounded-lg bg-gray-50 border border-gray-200 text-center animate-in fade-in duration-200">
@@ -128,11 +138,11 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
             ) : (
               <button
                 onClick={() => {
-                  if (node.header.trust_score > 80) {
-                    handleLoanApproval();
-                  } else if (node.header.trust_score >= 25) {
-                    setShowMediumRiskConfirm(true);
-                  }
+                  if (trustScore > 80) {
+                      handleLoanApproval();
+                    } else if (trustScore >= 25) {
+                      setShowMediumRiskConfirm(true);
+                    }
                 }}
                 className="w-full py-4 text-lg font-bold rounded-lg transition-colors flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-400 text-white shadow-sm"
               >
@@ -165,7 +175,7 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
           <span>⚙</span>
           {isHighRisk
             ? "TERAKHIR DIAUDIT OLEH SYSTEM (BARU SAJA)"
-            : `TERAKHIR DIAUDIT OLEH FIELD ${node.decision.last_audit.toUpperCase()} (2 Jam lalu)`
+            : `TERAKHIR DIAUDIT OLEH FIELD ${node.decision?.last_audit?.toUpperCase() || 'UNKNOWN'} (2 Jam lalu)`
           }
         </div>
       </div>

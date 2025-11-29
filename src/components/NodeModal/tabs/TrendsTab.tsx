@@ -1,7 +1,7 @@
 import React from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { Node } from "../types";
+import type { Node } from "../types";
 
 interface TrendsTabProps {
    node: Node;

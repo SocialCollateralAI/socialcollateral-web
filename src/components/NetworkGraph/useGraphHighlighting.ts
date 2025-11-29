@@ -12,9 +12,11 @@ interface HighlightProps {
 export const useGraphHighlighting = ({ sigmaInstance, selectedNodeId, nodeData }: HighlightProps) => {
   useEffect(() => {
     if (!sigmaInstance) return
+    if (typeof (sigmaInstance as any).getGraph !== 'function') return
 
     try {
       const g = sigmaInstance.getGraph()
+      if (!g) return
       const EDGE_HIGHLIGHT_COLOR = '#374151'
 
     // Update Edges
@@ -56,7 +58,9 @@ export const useGraphHighlighting = ({ sigmaInstance, selectedNodeId, nodeData }
     })
 
     try {
-      sigmaInstance.refresh()
+      if (typeof (sigmaInstance as any).refresh === 'function') {
+        sigmaInstance.refresh()
+      }
     } catch (error) {
       console.error('Sigma refresh error:', error)
       console.log('Graph nodes count:', g.order)
