@@ -73,7 +73,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
     console.log('Trust score:', trustScore);
     let candidate: any = 0;
     if (trustScore < 25) {
-      // High risk -> no disbursement
+      
       candidate = 0;
       console.log('High risk - setting candidate to 0');
     } else {
