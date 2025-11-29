@@ -111,7 +111,7 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
                       </div>
                     </div>
                     <div className="text-lg font-bold text-gray-500 mb-2">APPROVAL LOCKED (HIGH RISK)</div>
-                    <div className="text-sm text-gray-600">Supervisor override is not permitted for high-risk accounts.</div>
+                    <button onClick={() => setShowSupervisorOverride(true)} className="mt-3 text-sm text-purple-600 hover:text-purple-800 font-medium underline hover:cursor-pointer">Request Supervisor Override</button>
                   </div>
                 ) : (
                   <div className="w-full py-6 px-6 rounded-lg bg-gray-50 border border-gray-200 text-center animate-in fade-in duration-200">
