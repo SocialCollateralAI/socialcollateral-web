@@ -63,12 +63,43 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
   }, [activeTab]);
 
   const handleLoanApproval = () => {
+    console.log('handleLoanApproval started');
     if (!node) return;
+    console.log('handleLoanApproval started for node:', node.id);
     setLoanApproved(true);
     localStorage.setItem(`loanApproved_${node.id}`, "true");
-    const amount = node.overview?.max_plafon_recommendation ?? node.header?.total_loan_amount ?? 0;
+    // Determine amount based on trust score to keep behavior consistent with DecisionTab
+    const trustScore = Number(node.header?.trust_score ?? 0);
+    console.log('Trust score:', trustScore);
+    let candidate: any = 0;
+    if (trustScore < 25) {
+      // High risk -> no disbursement
+      candidate = 0;
+      console.log('High risk - setting candidate to 0');
+    } else {
+      // Prefer a recommended plafon, fall back to header total or a default cap
+      candidate = node.overview?.max_plafon_recommendation ?? node.header?.total_loan_amount ?? 25000000;
+      console.log('Non-high risk - candidate from node data:', candidate);
+    }
+
+    // Coerce candidate to a numeric amount safely
+    let amount = Number(candidate);
+    if (Number.isNaN(amount) || (amount === 0 && trustScore >= 25)) {
+      // If coercion failed or amount is 0 for non-high-risk, use fallback
+      amount = trustScore < 25 ? 0 : 25000000;
+      console.log('Using fallback amount (NaN or 0 for non-high-risk):', amount);
+    }
+    console.log('Final calculated amount:', amount, 'type:', typeof amount);
+
     if (onApprove && typeof onApprove === "function") {
-      onApprove(amount);
+      try {
+        console.log('Calling onApprove with amount:', amount);
+        onApprove(amount);
+      } catch (e) {
+        console.error('onApprove handler failed:', e);
+      }
+    } else {
+      console.log('onApprove is not a function or not provided');
     }
   };
 

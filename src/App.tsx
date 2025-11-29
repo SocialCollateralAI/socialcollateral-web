@@ -41,7 +41,11 @@ function App() {
 
   // Handler to deduct approved loan amount
   const handleApproveLoan = (amount: number) => {
-    if (typeof amount !== 'number' || isNaN(amount) || amount <= 0) return
+    console.log('handleApproveLoan called with amount:', amount, 'type:', typeof amount)
+    if (typeof amount !== 'number' || isNaN(amount) || amount < 0) {
+      console.log('Early return - invalid amount:', amount)
+      return
+    }
     setWalletBalance((prev) => {
       const newBalance = Math.max(0, prev - amount)
       localStorage.setItem('amartha_wallet_balance', newBalance.toString())
