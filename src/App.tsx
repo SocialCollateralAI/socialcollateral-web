@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import Sidebar from './components/Sidebar/Sidebar'
 import Header from './components/header/Header'
-import NetworkGraph from './components/NetworkGraph'
+import NetworkGraph from './components/networkGraph/index'
 import NodeModal from './components/NodeModal/index'
 import networkData from './data/networkData.json'
 

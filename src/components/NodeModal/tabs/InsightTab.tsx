@@ -87,7 +87,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
               .sort((a, b) => {
                 const scoreA = parseInt(a.risk_score || '0', 10)
                 const scoreB = parseInt(b.risk_score || '0', 10)
-                return scoreA - scoreB // urutkan dari kecil ke besar
+                return scoreB - scoreA // urutkan dari kecil ke besar
               })
               .map((member, index) => (
               <div key={index} className="flex items-center justify-between p-2 bg-red-50 border border-red-100 rounded">
@@ -98,7 +98,7 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
                     <div className="text-xs text-gray-600">{member.hops}</div>
                   </div>
                 </div>
-                <div className="text-xs font-bold text-red-600">{member.risk_score} trust</div>
+                <div className="text-xs font-bold text-red-600">{member.risk_score} risk</div>
               </div>
             ))}
           </div>
@@ -123,9 +123,9 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
             <div className="flex justify-between"><span className="text-gray-600">Roof:</span><span className="font-medium">{node.insights.cv.home.roof}</span></div>
             <div className="flex justify-between"><span className="text-gray-600">Access:</span><span className="font-medium">{node.insights.cv.home.access}</span></div>
             <div className="flex justify-between"><span className="text-gray-600">Occupancy:</span><span className="font-medium">{node.insights.cv.home.occupancy}</span></div>
-            <div className="flex gap-1 mt-2">
+            <div className={`flex ${node.insights.cv.home.assets.length > 2 ? 'flex-col' : 'flex-row'} gap-1 mt-2`}>
               {node.insights.cv.home.assets.map((asset, index) => (
-                <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded font-medium">{asset}</span>
+                <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded font-medium w-fit">{asset}</span>
               ))}
             </div>
             <div className="mt-4 border-t pt-3">
@@ -159,9 +159,9 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
             <div className="flex justify-between"><span className="text-gray-600">Stability:</span><span className="font-medium">{node.insights.cv.biz.stability}</span></div>
             <div className="flex justify-between"><span className="text-gray-600">Traffic:</span><span className="font-medium">{node.insights.cv.biz.traffic}</span></div>
             <div className="flex justify-between"><span className="text-gray-600">Digital:</span><span className="font-medium">{node.insights.cv.biz.digital}</span></div>
-            <div className="flex gap-1 mt-2">
+            <div className={`flex ${node.insights.cv.biz.inventory.length > 2 ? 'flex-col' : 'flex-row'} gap-1 mt-2`}>
               {node.insights.cv.biz.inventory.map((item, index) => (
-                <span key={index} className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded font-medium">{item}</span>
+                <span key={index} className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded font-medium w-fit">{item}</span>
               ))}
             </div>
             <div className="mt-4 border-t pt-3">

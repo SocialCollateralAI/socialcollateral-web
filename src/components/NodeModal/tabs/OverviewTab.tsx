@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Node } from "../types";
 import formatCurrency from "../../../utils/formatCurrency";
+import networkData from "../../../data/networkData.json";
 
 interface OverviewTabProps {
    node: Node;
@@ -10,12 +11,60 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
    const [radarSort, setRadarSort] = useState("toxic-first");
    const [showAllNeighbors, setShowAllNeighbors] = useState(false);
 
-   // Helper untuk warna progress bar
-   // const getProgressColor = (score: number) => {
-   //    if (score > 80) return "bg-emerald-500";
-   //    if (score >= 25) return "bg-yellow-500";
-   //    return "bg-red-500";
-   // };
+   // Enrich neighbors dengan trust_score dari networkData
+   const enrichedNeighbors = useMemo(() => {
+      const groups = (networkData as any).groups || {};
+      const neighborsMap = new Map<string, any>();
+      
+      // First, add direct neighbors from node data
+      node.overview.neighbors.forEach((neighbor: any) => {
+         const neighborData = groups[neighbor.id];
+         const trustScore = neighborData?.header?.trust_score || 50;
+         
+         let riskCategory = "healthy";
+         if (trustScore < 25) {
+            riskCategory = "toxic";
+         } else if (trustScore >= 25 && trustScore <= 80) {
+            riskCategory = "medium";
+         }
+         
+         neighborsMap.set(neighbor.id, {
+            ...neighbor,
+            trust_score: trustScore,
+            risk: riskCategory
+         });
+      });
+      
+      // Second, find reverse connections (groups yang menghubungkan ke node ini)
+      Object.entries(groups).forEach(([groupId, group]: [string, any]) => {
+         if (group.overview?.neighbors && Array.isArray(group.overview.neighbors)) {
+            group.overview.neighbors.forEach((neighbor: any) => {
+               if (neighbor.id === node.id && !neighborsMap.has(groupId)) {
+                  const neighborData = groups[groupId];
+                  const trustScore = neighborData?.header?.trust_score || 50;
+                  
+                  let riskCategory = "healthy";
+                  if (trustScore < 25) {
+                     riskCategory = "toxic";
+                  } else if (trustScore >= 25 && trustScore <= 80) {
+                     riskCategory = "medium";
+                  }
+                  
+                  neighborsMap.set(groupId, {
+                     id: groupId,
+                     name: neighborData?.header?.name || groupId,
+                     trust_score: trustScore,
+                     risk: riskCategory,
+                     distance: "0km",
+                     relation: "Connected Group"
+                  });
+               }
+            });
+         }
+      });
+      
+      return Array.from(neighborsMap.values());
+   }, [node]);
 
    return (
       <div className="space-y-6 animate-in fade-in duration-300">
@@ -232,7 +281,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                      RADAR KONEKSI
                   </h4>
                   <span className="text-xs text-gray-500 ml-2">
-                     ({node.overview.neighbors.length} relasi)
+                     ({enrichedNeighbors.length} relasi)
                   </span>
                </div>
                <div className="relative">
@@ -249,38 +298,35 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
             </div>
 
             <div className="space-y-3 max-h-96 overflow-y-auto">
-               {node.overview.neighbors
+               {enrichedNeighbors
                   .sort((a, b) => {
                      if (radarSort === "toxic-first") {
-                        // Urutan tetap: TOXIC → MEDIUM → HEALTHY (lengkap, tidak skip)
-                        const riskOrder = { toxic: 0, medium: 1, healthy: 2 };
-                        const riskA = riskOrder[a.risk as keyof typeof riskOrder] ?? 3;
-                        const riskB = riskOrder[b.risk as keyof typeof riskOrder] ?? 3;
-                        if (riskA !== riskB) return riskA - riskB;
-                        // Secondary: by distance
-                        const distanceA = parseFloat(a.distance.replace("km", ""));
-                        const distanceB = parseFloat(b.distance.replace("km", ""));
+                        // Sort by trust_score ASCENDING (lowest first = most toxic)
+                        if (a.trust_score !== b.trust_score) {
+                           return a.trust_score - b.trust_score;
+                        }
+                        // Secondary: by distance if trust_score sama
+                        const distanceA = parseFloat(a.distance.replace("km", "")) || 0;
+                        const distanceB = parseFloat(b.distance.replace("km", "")) || 0;
                         return distanceA - distanceB;
                      } else if (radarSort === "health-first") {
-                        // Urutan: HEALTHY → MEDIUM → TOXIC (lengkap, tidak skip)
-                        const riskOrder = { healthy: 0, medium: 1, toxic: 2 };
-                        const riskA = riskOrder[a.risk as keyof typeof riskOrder] ?? 3;
-                        const riskB = riskOrder[b.risk as keyof typeof riskOrder] ?? 3;
-                        if (riskA !== riskB) return riskA - riskB;
-                        // Secondary: by distance
-                        const distanceA = parseFloat(a.distance.replace("km", ""));
-                        const distanceB = parseFloat(b.distance.replace("km", ""));
+                        // Sort by trust_score DESCENDING (highest first = healthiest)
+                        if (a.trust_score !== b.trust_score) {
+                           return b.trust_score - a.trust_score;
+                        }
+                        // Secondary: by distance if trust_score sama
+                        const distanceA = parseFloat(a.distance.replace("km", "")) || 0;
+                        const distanceB = parseFloat(b.distance.replace("km", "")) || 0;
                         return distanceA - distanceB;
                      } else if (radarSort === "location") {
-                        // Primary: by distance, secondary: by risk (toxic first)
-                        const distanceA = parseFloat(a.distance.replace("km", ""));
-                        const distanceB = parseFloat(b.distance.replace("km", ""));
-                        if (distanceA !== distanceB) return distanceA - distanceB;
-                        // Secondary: by risk (toxic first)
-                        const riskOrder = { toxic: 0, medium: 1, healthy: 2 };
-                        const riskA = riskOrder[a.risk as keyof typeof riskOrder] ?? 3;
-                        const riskB = riskOrder[b.risk as keyof typeof riskOrder] ?? 3;
-                        return riskA - riskB;
+                        // Primary: by distance ASCENDING
+                        const distanceA = parseFloat(a.distance.replace("km", "")) || 0;
+                        const distanceB = parseFloat(b.distance.replace("km", "")) || 0;
+                        if (distanceA !== distanceB) {
+                           return distanceA - distanceB;
+                        }
+                        // Secondary: by trust_score ASCENDING (toxic first)
+                        return a.trust_score - b.trust_score;
                      }
                      return 0;
                   })

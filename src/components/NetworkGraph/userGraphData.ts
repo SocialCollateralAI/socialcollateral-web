@@ -1,7 +1,6 @@
-// src/components/NetworkGraph/useGraphData.ts
 import { useMemo } from 'react'
 import Graph from 'graphology'
-import networkData from '../../data/networkData.json' // Sesuaikan path jika perlu
+import networkData from '../../data/networkData.json' 
 import { GroupNode, Neighbor } from './NetworkGraph.types'
 
 export const useGraphData = (apiData?: any) => {

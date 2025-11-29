@@ -35,6 +35,7 @@ export const useGraphHighlighting = ({ sigmaInstance, selectedNodeId, nodeData }
       // Ambil atribut original, fallback ke nodeData jika tidak ada di atribut graph
       const originalColor = g.getNodeAttribute(node, 'origColor') || (nodeData.get(node) as any)?.color || '#94a3b8'
       const originalSize = g.getNodeAttribute(node, 'origSize') || (nodeData.get(node) as any)?.size || 12
+      const selectedSize = g.getNodeAttribute(node, 'selectedSize') || originalSize * 1.4
 
       let isRelated = false
       if (selectedNodeId) {
@@ -44,7 +45,7 @@ export const useGraphHighlighting = ({ sigmaInstance, selectedNodeId, nodeData }
       const nodeColor = (isSelected || isRelated || !selectedNodeId) ? originalColor : '#d1d5db'
       
       g.setNodeAttribute(node, 'color', nodeColor)
-      g.setNodeAttribute(node, 'size', isSelected ? Math.min(originalSize * 1.4, 60) : originalSize)
+      g.setNodeAttribute(node, 'size', isSelected ? selectedSize : originalSize)
     })
 
     sigmaInstance.refresh()

@@ -1,12 +1,9 @@
-// src/components/NetworkGraph/index.tsx
 import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { Sigma } from 'sigma'
 import { circular } from 'graphology-layout'
 import forceAtlas2 from 'graphology-layout-forceatlas2'
-
-// Imports dari file refactoring kita
 import { NetworkGraphProps } from './NetworkGraph.types'
-import { useGraphData } from './useGraphData'
+import { useGraphData } from './userGraphData'
 import { useGraphHighlighting } from './useGraphHighlighting'
 import ZoomControls from './ZoomControls'
 
@@ -47,7 +44,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
       if (selectedStatus !== 'all') {
         if (selectedStatus === 'healthy' && trustScore <= 80) filtered.dropNode(node)
         else if (selectedStatus === 'medium' && (trustScore < 25 || trustScore > 80)) filtered.dropNode(node)
-        else if (selectedStatus === 'high' && trustScore >= 25) filtered.dropNode(node)
+        else if (selectedStatus === 'toxic' && trustScore >= 25) filtered.dropNode(node)
       }
     })
     return filtered

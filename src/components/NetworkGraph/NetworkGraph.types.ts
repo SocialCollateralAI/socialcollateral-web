@@ -1,5 +1,3 @@
-// src/components/NetworkGraph/NetworkGraph.types.ts
-
 export interface GroupHeader {
   name: string
   location_city: string
