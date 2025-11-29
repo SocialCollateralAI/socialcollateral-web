@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Node } from '../types';
+import type { Node } from '../types';
 import home_good from "../../../assets/mock/home_good.jpg";
 import home_poor from "../../../assets/mock/home_poor.jpg";
 import biz_good from "../../../assets/mock/biz_good.jpg";

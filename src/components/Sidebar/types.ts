@@ -6,4 +6,5 @@ export interface SidebarProps {
   selectedStatus: string;
   onStatusChange: (status: string) => void;
   walletBalance: number;
+  apiData?: any;
 }

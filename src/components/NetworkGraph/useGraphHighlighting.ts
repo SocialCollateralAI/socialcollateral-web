@@ -1,7 +1,7 @@
 // src/components/NetworkGraph/useGraphHighlighting.ts
 import { useEffect } from 'react'
-import Sigma from 'sigma'
-import { GroupNode } from './NetworkGraph.types'
+import type Sigma from 'sigma'
+import type { GroupNode } from './NetworkGraph.types'
 
 interface HighlightProps {
   sigmaInstance: Sigma | null
@@ -13,8 +13,9 @@ export const useGraphHighlighting = ({ sigmaInstance, selectedNodeId, nodeData }
   useEffect(() => {
     if (!sigmaInstance) return
 
-    const g = sigmaInstance.getGraph()
-    const EDGE_HIGHLIGHT_COLOR = '#374151'
+    try {
+      const g = sigmaInstance.getGraph()
+      const EDGE_HIGHLIGHT_COLOR = '#374151'
 
     // Update Edges
     g.forEachEdge((edge, attr, source, target) => {
@@ -22,11 +23,10 @@ export const useGraphHighlighting = ({ sigmaInstance, selectedNodeId, nodeData }
       
       const origColor = g.getEdgeAttribute(edge, 'origColor') || attr.origColor || '#e2e8f0'
       const origSize = g.getEdgeAttribute(edge, 'origSize') || attr.origSize || (attr.size || 1)
-      const origType = g.getEdgeAttribute(edge, 'origType') || attr.origType || (attr.type || 'line')
 
       g.setEdgeAttribute(edge, 'color', isConnected ? EDGE_HIGHLIGHT_COLOR : origColor)
       g.setEdgeAttribute(edge, 'size', isConnected ? Math.max(origSize, 3) : origSize)
-      g.setEdgeAttribute(edge, 'type', isConnected ? 'line' : origType)
+      // Edge types are usually okay, but keep it simple
     })
 
     // Update Nodes
@@ -44,10 +44,42 @@ export const useGraphHighlighting = ({ sigmaInstance, selectedNodeId, nodeData }
 
       const nodeColor = (isSelected || isRelated || !selectedNodeId) ? originalColor : '#d1d5db'
       
+      // Only set color and size, don't set any type attributes
       g.setNodeAttribute(node, 'color', nodeColor)
       g.setNodeAttribute(node, 'size', isSelected ? selectedSize : originalSize)
+      
+      // Ensure no invalid type is set
+      if (g.hasNodeAttribute(node, 'type')) {
+        console.log(`Removing type attribute from node ${node}:`, g.getNodeAttribute(node, 'type'))
+        g.removeNodeAttribute(node, 'type')
+      }
     })
 
-    sigmaInstance.refresh()
+    try {
+      sigmaInstance.refresh()
+    } catch (error) {
+      console.error('Sigma refresh error:', error)
+      console.log('Graph nodes count:', g.order)
+      console.log('Graph edges count:', g.size)
+      
+      // Debug: Check all node attributes
+      g.forEachNode((node) => {
+        const attrs = g.getNodeAttributes(node)
+        console.log(`Node ${node} attributes:`, attrs)
+        if (g.hasNodeAttribute(node, 'type')) {
+          console.log(`Removing problematic type from node ${node}`)
+          g.removeNodeAttribute(node, 'type')
+        }
+      })
+      
+      try {
+        sigmaInstance.refresh()
+      } catch (secondError) {
+        console.error('Second refresh attempt failed:', secondError)
+      }
+    }
+    } catch (highlightError) {
+      console.error('Error in graph highlighting:', highlightError)
+    }
   }, [selectedNodeId, sigmaInstance, nodeData])
 }

@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Sidebar from './components/Sidebar/Sidebar'
 import Header from './components/header/Header'
-import NetworkGraph from './components/networkGraph/index'
+import NetworkGraph from './components/NetworkGraph/index'
 import NodeModal from './components/NodeModal/index'
-import networkData from './data/networkData.json'
+import { fetchGraph } from './api/api'
 
 function App() {
   // 1. State dipisah untuk Kabupaten dan Desa
@@ -11,12 +11,33 @@ function App() {
   const [selectedDesa, setSelectedDesa] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [selectedNode, setSelectedNode] = useState<any | null>(null)
+  const [apiData, setApiData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   // 2. Wallet State dengan LocalStorage Persistence
   const [walletBalance, setWalletBalance] = useState(() => {
     const savedBalance = localStorage.getItem('amartha_wallet_balance')
     return savedBalance ? parseInt(savedBalance, 10) : 1000000000
   })
+
+  // 3. Fetch API Data
+  useEffect(() => {
+    const loadGraphData = async () => {
+      try {
+        setIsLoading(true)
+        const data = await fetchGraph()
+        setApiData(data)
+      } catch (error) {
+        console.error('Failed to fetch graph data:', error)
+        // Fallback to empty data structure
+        setApiData({ nodes: [], edges: [] })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadGraphData()
+  }, [])
 
   // Handler to deduct approved loan amount
   const handleApproveLoan = (amount: number) => {
@@ -37,8 +58,24 @@ function App() {
     setSelectedNode(null)
   }
 
-  // Convert groups object from networkData into an array and compute filtered stats
-  const groupsArray = useMemo(() => Object.values(networkData.groups || {}), [])
+  // Convert API data into groups array for filtering stats
+  const groupsArray = useMemo(() => {
+    if (!apiData) return []
+    
+    // Handle new API format with nodes array
+    if (apiData.nodes) {
+      return apiData.nodes.map((node: any) => ({
+        header: {
+          location_village: node.attributes?.location_village || '',
+          trust_score: node.attributes?.trust_score || 0,
+          member_count: node.attributes?.member_count || 0
+        }
+      }))
+    }
+    
+    // Fallback to old format
+    return Object.values(apiData.groups || {})
+  }, [apiData])
 
   const filteredStats = useMemo(() => {
     if (!selectedDesa) {
@@ -87,6 +124,7 @@ function App() {
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
         walletBalance={walletBalance}
+        apiData={apiData}
       />
 
       {/* MAIN CONTENT */}
@@ -103,11 +141,19 @@ function App() {
 
         {/* GRAPH */}
         <div className="flex-1 relative">
-          {selectedDesa ? (
+          {isLoading ? (
+            <div className="h-full flex items-center justify-center text-gray-400">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                <p>Loading network data...</p>
+              </div>
+            </div>
+          ) : selectedDesa ? (
             <NetworkGraph
               selectedLocation={selectedDesa}
               selectedStatus={selectedStatus}
               onNodeSelect={setSelectedNode}
+              apiData={apiData}
             />
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-gray-400 animate-in fade-in">

@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
 import { Activity, Filter, User } from 'lucide-react';
-import networkData from '../../data/networkData.json';
 import CustomSelect from '../../common/CustomSelect';
 import WalletCard from './WalletCard';
-import { SidebarProps } from './types';
+import type { SidebarProps } from './types';
 
 const Sidebar = ({
   selectedKabupaten,
@@ -12,13 +11,30 @@ const Sidebar = ({
   onDesaChange,
   selectedStatus,
   onStatusChange,
-  walletBalance
+  walletBalance,
+  apiData
 }: SidebarProps) => {
 
-  const groupsArray = useMemo(() => Object.values((networkData as any).groups || {}), [] as any[]);
+  const groupsArray = useMemo(() => {
+    if (!apiData) return [];
+    
+    // Handle new API format with nodes array
+    if (apiData.nodes) {
+      return apiData.nodes.map((node: any) => ({
+        header: {
+          location_city: node.attributes?.location_city || '',
+          location_village: node.attributes?.location_village || '',
+          trust_score: node.attributes?.trust_score || 0
+        }
+      }));
+    }
+    
+    // Fallback to old format
+    return Object.values(apiData.groups || {});
+  }, [apiData]);
 
   const kabupatenOptions = useMemo(() => {
-    const cities = Array.from(new Set(groupsArray.map((g: any) => g.header?.location_city).filter(Boolean)));
+    const cities = Array.from(new Set(groupsArray.map((g: any) => g.header?.location_city).filter(Boolean))) as string[];
     return cities.map((c: string) => ({ id: c, label: c }));
   }, [groupsArray]);
 
@@ -27,7 +43,7 @@ const Sidebar = ({
     const villages = Array.from(new Set(groupsArray
       .filter((g: any) => g.header?.location_city === selectedKabupaten)
       .map((g: any) => g.header?.location_village)
-      .filter(Boolean)));
+      .filter(Boolean))) as string[];
     return villages.map((v: string) => ({ id: v, label: v }));
   }, [groupsArray, selectedKabupaten]);
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Node } from '../types';
+import type { Node } from '../types';
 import { X, Check } from 'lucide-react';
 import formatCurrency from '../../../utils/formatCurrency';
 

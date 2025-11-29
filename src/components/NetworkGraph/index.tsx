@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useRef } from 'react'
 import { Sigma } from 'sigma'
 import { circular } from 'graphology-layout'
 import forceAtlas2 from 'graphology-layout-forceatlas2'
-import { NetworkGraphProps } from './NetworkGraph.types'
+import type { NetworkGraphProps } from './NetworkGraph.types'
 import { useGraphData } from './userGraphData'
 import { useGraphHighlighting } from './useGraphHighlighting'
 import ZoomControls from './ZoomControls'
@@ -19,6 +19,8 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
 
   // 1. Get Data
   const { graph, nodeData } = useGraphData(apiData)
+  console.log('Graph and Node Data:', graph)
+  console.log('API Data:', nodeData)
 
   // 2. Filter Logic (Tetap di sini atau bisa dipindah ke hook lain jika ingin lebih bersih lagi)
   const filteredGraph = useMemo(() => {
@@ -30,6 +32,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
         filtered.dropNode(node)
         return
       }
+      console.log('Filtering Node:', nodeInfo)
 
       // Filter by Village
       if (selectedLocation && selectedLocation !== 'all') {
@@ -52,26 +55,62 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
 
   // 3. Sigma Initialization & Layout
   useEffect(() => {
-    if (!containerRef.current) return
+    // Add a small delay to ensure DOM is ready
+    const initializeSigma = () => {
+      if (!containerRef.current) {
+        console.log('Container ref not ready, skipping Sigma initialization')
+        return
+      }
 
-    // Layout algorithms
-    circular.assign(filteredGraph)
-    const settings = forceAtlas2.inferSettings(filteredGraph)
-    forceAtlas2.assign(filteredGraph, { iterations: 50, settings })
+    if (!filteredGraph || filteredGraph.order === 0) {
+      console.log('No nodes in graph, skipping Sigma initialization')
+      return
+    }
 
-    // Create Instance
-    const sigma = new Sigma(filteredGraph, containerRef.current, {
-      renderLabels: true,
-      labelFont: "Inter, sans-serif",
-      labelSize: 12,
-      labelWeight: "600",
-      defaultNodeColor: "#94a3b8",
-      defaultEdgeColor: "#e2e8f0",
-      minCameraRatio: 0.1,
-      maxCameraRatio: 10
-    })
+    // Clean up previous instance
+    if (sigmaRef.current) {
+      try {
+        sigmaRef.current.kill()
+      } catch (e) {
+        console.log('Error cleaning up previous Sigma instance:', e)
+      }
+      sigmaRef.current = null
+    }
 
-    sigmaRef.current = sigma
+    try {
+      // Layout algorithms
+      circular.assign(filteredGraph)
+      const settings = forceAtlas2.inferSettings(filteredGraph)
+      forceAtlas2.assign(filteredGraph, { iterations: 50, settings })
+
+      // Clean any problematic node types
+      filteredGraph.forEachNode((node) => {
+        if (filteredGraph.hasNodeAttribute(node, 'type')) {
+          filteredGraph.removeNodeAttribute(node, 'type')
+        }
+      })
+
+      // Create Instance with minimal settings
+      const sigma = new Sigma(filteredGraph, containerRef.current, {
+        renderLabels: true,
+        labelFont: "Arial, sans-serif",
+        labelSize: 12,
+        defaultNodeColor: "#94a3b8",
+        defaultEdgeColor: "#e2e8f0"
+      })
+
+      sigmaRef.current = sigma
+      console.log('Sigma initialized successfully')
+
+    } catch (error) {
+      console.error('Sigma initialization failed:', error)
+      sigmaRef.current = null
+      return
+    }
+
+    if (!sigmaRef.current) return
+
+    const sigma = sigmaRef.current
 
     // Click Event Handler
     sigma.on('clickNode', ({ node }) => {
@@ -91,8 +130,30 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
     })
 
     return () => {
-      sigma.kill()
-      sigmaRef.current = null
+      if (sigmaRef.current) {
+        try {
+          sigmaRef.current.kill()
+        } catch (e) {
+          console.log('Error during Sigma cleanup:', e)
+        }
+        sigmaRef.current = null
+      }
+    }
+    }
+
+    // Use setTimeout to ensure DOM is ready
+    const timeoutId = setTimeout(initializeSigma, 100)
+
+    return () => {
+      clearTimeout(timeoutId)
+      if (sigmaRef.current) {
+        try {
+          sigmaRef.current.kill()
+        } catch (e) {
+          console.log('Error during Sigma cleanup:', e)
+        }
+        sigmaRef.current = null
+      }
     }
   }, [filteredGraph, nodeData, onNodeSelect])
 
@@ -145,7 +206,11 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
       <div
         ref={containerRef}
         className="w-full h-full"
-        style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}
+        style={{ 
+          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+          minHeight: '400px',
+          minWidth: '400px'
+        }}
       />
       <ZoomControls 
         onZoomIn={handleZoomIn} 

@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { Node } from "../types";
+import type { Node } from "../types";
 import formatCurrency from "../../../utils/formatCurrency";
-import networkData from "../../../data/networkData.json";
 
 interface OverviewTabProps {
    node: Node;
@@ -9,58 +8,49 @@ interface OverviewTabProps {
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
    const [radarSort, setRadarSort] = useState("toxic-first");
-   const [showAllNeighbors, setShowAllNeighbors] = useState(false);
 
-   // Enrich neighbors dengan trust_score dari networkData
+   // Enrich neighbors dengan trust_score dari fetched group details
    const enrichedNeighbors = useMemo(() => {
-      const groups = (networkData as any).groups || {};
+      console.log('Node Data for Neighbors:', node);
+      console.log('Node overview:', node.overview);
+      
+      // Use the detailed node data that was fetched by NodeModal
+      const neighbors = node.overview?.neighbors || [];
+      console.log('Direct neighbors:', neighbors);
+      console.log('Neighbors length:', neighbors.length);
+      
+      if (neighbors.length === 0) {
+         console.log(`No neighbors found for node ${node.id}. This node appears to be isolated.`);
+      }
       const neighborsMap = new Map<string, any>();
       
-      // First, add direct neighbors from node data
-      node.overview.neighbors.forEach((neighbor: any) => {
-         const neighborData = groups[neighbor.id];
-         const trustScore = neighborData?.header?.trust_score || 50;
+      // Process direct neighbors from the fetched node data
+      neighbors.forEach((neighbor: any) => {
+         // The neighbor data already contains the risk category from API
+         const riskCategory = neighbor.risk || "healthy";
          
-         let riskCategory = "healthy";
-         if (trustScore < 25) {
-            riskCategory = "toxic";
-         } else if (trustScore >= 25 && trustScore <= 80) {
-            riskCategory = "medium";
+         // Convert risk score from neighbor if available, otherwise derive from risk category
+         let trustScore = 50; // default
+         if (neighbor.trust_score) {
+            trustScore = neighbor.trust_score;
+         } else {
+            // Derive trust score from risk category
+            switch (riskCategory) {
+               case "healthy": trustScore = 85; break;
+               case "medium": trustScore = 50; break;
+               case "toxic": trustScore = 15; break;
+               default: trustScore = 50;
+            }
          }
          
          neighborsMap.set(neighbor.id, {
-            ...neighbor,
+            id: neighbor.id,
+            name: neighbor.name || neighbor.id,
+            distance: neighbor.distance || "0km",
+            relation: neighbor.relation || "Tetangga",
             trust_score: trustScore,
             risk: riskCategory
          });
-      });
-      
-      // Second, find reverse connections (groups yang menghubungkan ke node ini)
-      Object.entries(groups).forEach(([groupId, group]: [string, any]) => {
-         if (group.overview?.neighbors && Array.isArray(group.overview.neighbors)) {
-            group.overview.neighbors.forEach((neighbor: any) => {
-               if (neighbor.id === node.id && !neighborsMap.has(groupId)) {
-                  const neighborData = groups[groupId];
-                  const trustScore = neighborData?.header?.trust_score || 50;
-                  
-                  let riskCategory = "healthy";
-                  if (trustScore < 25) {
-                     riskCategory = "toxic";
-                  } else if (trustScore >= 25 && trustScore <= 80) {
-                     riskCategory = "medium";
-                  }
-                  
-                  neighborsMap.set(groupId, {
-                     id: groupId,
-                     name: neighborData?.header?.name || groupId,
-                     trust_score: trustScore,
-                     risk: riskCategory,
-                     distance: "0km",
-                     relation: "Connected Group"
-                  });
-               }
-            });
-         }
       });
       
       return Array.from(neighborsMap.values());
@@ -86,8 +76,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                   PRIMARY RISK DRIVER
                </h4>
             </div>
+            {/* Primary Driver Data */}
             <p className="text-sm text-gray-600 mb-4">
-               {node.overview.primary_driver.text}
+               {node.overview?.primary_driver?.text || "No primary driver data available"}
             </p>
 
             {/* Enhanced Comparative Bar Chart */}
@@ -101,14 +92,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                   <div className="flex bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
                      <div
                         className={`h-4 transition-all duration-700 ${
-                           node.header.trust_score > 80
+                           (node.header?.trust_score || 0) > 80
                               ? "bg-blue-500"
-                              : node.header.trust_score >= 25
+                              : (node.header?.trust_score || 0) >= 25
                                 ? "bg-yellow-500"
                                 : "bg-yellow-500"
                         }`}
                         style={{
-                           width: `${node.overview.primary_driver.payment_score}%`,
+                           width: `${node.overview?.primary_driver?.payment_score || 0}%`,
                         }}
                      ></div>
                   </div>
@@ -124,7 +115,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                            }`}
                         ></div>
                         <span className="text-xs text-gray-700 font-bold">
-                           {node.overview.primary_driver.payment_score}%
+                           {node.overview?.primary_driver?.payment_score || 0}%
                         </span>
                      </div>
                   </div>
@@ -145,14 +136,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                                 : "bg-red-500"
                         }`}
                         style={{
-                           width: `${node.overview.primary_driver.social_score}%`,
+                           width: `${node.overview?.primary_driver?.social_score || 0}%`,
                         }}
                      ></div>
                   </div>
                   <div className="flex justify-between mt-2">
                      <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-700 font-bold">
-                           {node.overview.primary_driver.social_score}%
+                           {node.overview?.primary_driver?.social_score || 0}%
                         </span>
                         <div
                            className={`w-3 h-3 rounded-full ${
@@ -177,7 +168,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                   CYCLE
                </div>
                <div className="text-3xl font-bold text-gray-900">
-                  {node.overview.metrics.cycle}
+                  {node.overview?.metrics?.cycle || 'N/A'}
                </div>
                <div className="text-xs text-gray-500">Times Borrowed</div>
             </div>
@@ -213,15 +204,15 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                         }
                         strokeWidth="8"
                         fill="none"
-                        strokeDasharray={`${(node.overview.metrics.repayment_rate / 100) * 201} 201`}
+                        strokeDasharray={`${((node.overview?.metrics?.repayment_rate || 0) / 100) * 201} 201`}
                         strokeLinecap="round"
                         className="transition-all duration-500"
                      />
                   </svg>
                   <div
-                     className={`absolute text-lg font-bold ${node.header.trust_score > 80 ? "text-green-700" : node.header.trust_score >= 25 ? "text-amber-700" : "text-red-700"}`}
+                     className={`absolute text-lg font-bold ${(node.header?.trust_score || 0) > 80 ? "text-green-700" : (node.header?.trust_score || 0) >= 25 ? "text-amber-700" : "text-red-700"}`}
                   >
-                     {node.overview.metrics.repayment_rate}%
+                     {node.overview?.metrics?.repayment_rate || 0}%
                   </div>
                </div>
             </div>
@@ -233,17 +224,17 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                </div>
                <div className="flex items-center justify-center gap-2 mb-2">
                   <div
-                     className={`w-3 h-3 rounded-full ${node.overview.metrics.repayment_rate >= 95 ? "bg-green-500" : "bg-gray-200"}`}
+                     className={`w-3 h-3 rounded-full ${(node.overview?.metrics?.repayment_rate || 0) >= 95 ? "bg-green-500" : "bg-gray-200"}`}
                   ></div>
                   <div
-                     className={`w-3 h-3 rounded-full ${node.overview.metrics.repayment_rate >= 85 && node.overview.metrics.repayment_rate < 95 ? "bg-yellow-500" : "bg-gray-200"}`}
+                     className={`w-3 h-3 rounded-full ${(node.overview?.metrics?.repayment_rate || 0) >= 85 && (node.overview?.metrics?.repayment_rate || 0) < 95 ? "bg-yellow-500" : "bg-gray-200"}`}
                   ></div>
                   <div
-                     className={`w-3 h-3 rounded-full ${node.overview.metrics.repayment_rate < 85 ? "bg-red-500" : "bg-gray-200"}`}
+                     className={`w-3 h-3 rounded-full ${(node.overview?.metrics?.repayment_rate || 0) < 85 ? "bg-red-500" : "bg-gray-200"}`}
                   ></div>
                </div>
                <div className="text-2xl font-bold text-gray-900">
-                  {node.overview.metrics.avg_delay}
+                  {node.overview?.metrics?.avg_delay || 'N/A'}
                </div>
             </div>
          </div>
