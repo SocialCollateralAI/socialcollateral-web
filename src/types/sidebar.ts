@@ -2,7 +2,7 @@
  * Sidebar types
  */
 
-import type { GraphResponse } from '../../types';
+import type { GraphResponse } from '.';
 
 export interface SidebarProps {
   selectedKabupaten: string;
