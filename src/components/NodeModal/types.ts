@@ -1,7 +1,3 @@
-/**
- * NodeModal types - re-exported from centralized types for backward compatibility
- */
-
 // Re-export GroupNode as Node for backward compatibility
 export type { GroupNode as Node } from '../../types';
 
