@@ -3,8 +3,8 @@
  * Phase 3: Extracted from App.tsx for cleaner architecture
  */
 import React, { type ReactNode } from 'react'
-import Sidebar from '../Sidebar/Sidebar'
-import Header from '../Header/Header'
+import Sidebar from '../Sidebar'
+import Header from '../Header'
 import NetworkGraph from '../NetworkGraph/index'
 import NodeModalWrapper from '../NodeModal/NodeModalWrapper'
 import { useDashboard } from '../../context'
