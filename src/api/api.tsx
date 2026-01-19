@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { GraphResponse, GroupDetailsResponse } from '../types';
 
 const API_BASE = 'https://socialcollateral-api-228221306168.asia-southeast2.run.app/api/v1'
 
@@ -6,10 +7,10 @@ export function getAPIClient() {
   return axios.create({ baseURL: API_BASE })
 }
 
-export async function fetchGraph() {
+export async function fetchGraph(): Promise<GraphResponse> {
   const api = getAPIClient()
   try {
-    const res = await api.get('/graph')
+    const res = await api.get<GraphResponse>('/graph')
     console.log('fetchGraph success', res.data)
     return res.data
   } catch (err) {
@@ -18,10 +19,10 @@ export async function fetchGraph() {
   }
 }
 
-export async function fetchGroupDetails(groupId: string) {
+export async function fetchGroupDetails(groupId: string): Promise<GroupDetailsResponse> {
   const api = getAPIClient()
   try {
-    const res = await api.get(`/groups/${groupId}`)
+    const res = await api.get<GroupDetailsResponse>(`/groups/${groupId}`)
     console.log('fetchGroupDetails success', res.data)
     return res.data
   } catch (err) {

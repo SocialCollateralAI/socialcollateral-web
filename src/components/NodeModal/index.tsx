@@ -18,7 +18,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
   const [showSupervisorOverride, setShowSupervisorOverride] = useState(false);
   const [supervisorPasskey, setSupervisorPasskey] = useState("");
   const [showMediumRiskConfirm, setShowMediumRiskConfirm] = useState(false);
-  const [groupDetails, setGroupDetails] = useState<any>(null);
+  const [groupDetails, setGroupDetails] = useState<Node | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
   const tabContentRef = useRef<HTMLDivElement>(null);
 
@@ -30,7 +30,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
       } else {
         setLoanApproved(false); // Reset state if switching nodes
       }
-      
+
       // Fetch detailed group data from API
       const loadGroupDetails = async () => {
         try {
@@ -48,7 +48,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
           setLoadingDetails(false);
         }
       };
-      
+
       loadGroupDetails();
     } else {
       setGroupDetails(null);
@@ -71,9 +71,9 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
     // Determine amount based on trust score to keep behavior consistent with DecisionTab
     const trustScore = Number(node.header?.trust_score ?? 0);
     console.log('Trust score:', trustScore);
-    let candidate: any = 0;
+    let candidate: number = 0;
     if (trustScore < 25) {
-      
+
       candidate = 0;
       console.log('High risk - setting candidate to 0');
     } else {
@@ -125,7 +125,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
               </div>
             </div>
             <div className="text-sm text-gray-600 flex items-center gap-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               {node.header.location_city}, {node.header.location_village}
             </div>
           </div>
@@ -138,7 +138,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
               <div className="flex items-center gap-10">
                 <div className="flex items-center gap-4">
                   <div className={`p-2 rounded-full border ${node.header.trust_score > 80 ? "bg-green-50 text-green-800 border-green-100" : node.header.trust_score > 25 ? "bg-yellow-50 text-yellow-800 border-yellow-100" : "bg-red-50 text-red-800 border-red-100"}`}>
-                    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l7 3v5c0 5-3.58 9.74-7 11-3.42-1.26-7-6-7-11V5l7-3z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M9.5 12.5l1.75 1.75L15.5 10" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l7 3v5c0 5-3.58 9.74-7 11-3.42-1.26-7-6-7-11V5l7-3z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M9.5 12.5l1.75 1.75L15.5 10" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
                   <div className="text-start leading-tight">
                     <div className="text-[10px] text-gray-500 uppercase tracking-wide font-semibold">Group Trust Score</div>
@@ -149,7 +149,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-full border ${node.header.trust_score > 80 ? "bg-green-50 text-green-800 border-green-100" : node.header.trust_score > 25 ? "bg-yellow-50 text-yellow-800 border-yellow-100" : "bg-red-50 text-red-800 border-red-100"}`}>
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M4 20v-1c0-2.21 3.582-4 8-4s8 1.79 8 4v1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M4 20v-1c0-2.21 3.582-4 8-4s8 1.79 8 4v1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
                   <div className="text-start leading-tight">
                     <div className="text-[10px] uppercase text-gray-500 tracking-wide font-semibold">Total Anggota</div>
@@ -160,7 +160,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
               <div className="text-center leading-tight">
                 <div className="text-[10px] text-gray-500 uppercase tracking-wide font-semibold">Loan Eligibility</div>
                 <div className={`inline-flex items-center px-3 py-1 mt-1 rounded-full text-sm font-semibold border ${node.header.trust_score > 80 ? "bg-green-100 text-green-700 border-green-300" : node.header.trust_score > 25 ? "bg-yellow-100 text-yellow-800 border-yellow-300" : "bg-red-100 text-red-700 border-red-300"}`}>
-                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/></svg>
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                   {node.header.trust_score > 80 ? "Eligible" : node.header.trust_score >= 25 ? "Review" : "High Risk"}
                 </div>
               </div>
@@ -172,20 +172,20 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
       {/* Close Button */}
       <div className="absolute top-4 right-4">
         <button onClick={onClose} className="p-2 hover:bg-white rounded-full border-2 border-gray-300 transition-colors" type="button" aria-label="Close">
-          <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+          <svg className="w-4 h-4 text-gray-600" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </button>
       </div>
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
         {tabs.map((tab) => (
-          <button 
-            key={tab.id} 
+          <button
+            key={tab.id}
             onClick={(e) => {
               e.stopPropagation()
               setActiveTab(tab.id)
-            }} 
-            className={`flex-1 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`} 
+            }}
+            className={`flex-1 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id ? "border-blue-500 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
             type="button"
           >
             {tab.label}
@@ -194,7 +194,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
       </div>
 
       {/* Tab Content */}
-      <div 
+      <div
         ref={tabContentRef}
         className="flex-1 overflow-y-auto p-4 custom-scrollbar"
         onClick={(e) => e.stopPropagation()}

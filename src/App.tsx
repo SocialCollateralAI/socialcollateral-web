@@ -1,17 +1,28 @@
 import { useState, useMemo, useEffect } from 'react'
 import Sidebar from './components/Sidebar/Sidebar'
-import Header from './components/header/Header'
+import Header from './components/Header/Header'
 import NetworkGraph from './components/NetworkGraph/index'
 import NodeModal from './components/NodeModal/index'
 import { fetchGraph } from './api/api'
+import type { GroupNode, GraphResponse, GraphNodeRaw } from './types'
+
+// Type for simplified group data used in filtering stats
+interface SimplifiedGroupNode {
+  header?: {
+    location_village?: string;
+    trust_score?: number;
+    member_count?: number;
+  };
+  type?: string;
+}
 
 function App() {
   // 1. State dipisah untuk Kabupaten dan Desa
   const [selectedKabupaten, setSelectedKabupaten] = useState('')
   const [selectedDesa, setSelectedDesa] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('all')
-  const [selectedNode, setSelectedNode] = useState<any | null>(null)
-  const [apiData, setApiData] = useState<any>(null)
+  const [selectedNode, setSelectedNode] = useState<GroupNode | null>(null)
+  const [apiData, setApiData] = useState<GraphResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // 2. Wallet State dengan LocalStorage Persistence
@@ -65,20 +76,20 @@ function App() {
   // Convert API data into groups array for filtering stats
   const groupsArray = useMemo(() => {
     if (!apiData) return []
-    
+
     // Handle new API format with nodes array
     if (apiData.nodes) {
-      return apiData.nodes.map((node: any) => ({
+      return apiData.nodes.map((node: GraphNodeRaw): SimplifiedGroupNode => ({
         header: {
           location_village: node.attributes?.location_village || '',
           trust_score: node.attributes?.trust_score || 0,
-          member_count: node.attributes?.member_count || 0
+          member_count: node.attributes?.size ? Math.round(node.attributes.size * 2) : 0
         }
       }))
     }
-    
+
     // Fallback to old format
-    return Object.values(apiData.groups || {})
+    return Object.values((apiData as unknown as { groups?: Record<string, SimplifiedGroupNode> }).groups || {})
   }, [apiData])
 
   const filteredStats = useMemo(() => {
@@ -86,18 +97,18 @@ function App() {
       return { totalGroups: 0, totalMembers: 0 }
     }
 
-    const filteredNodes = groupsArray.filter((node: any) => {
+    const filteredNodes = groupsArray.filter((node: SimplifiedGroupNode) => {
       if (node.header?.location_village !== selectedDesa) return false
 
       if (selectedStatus !== 'all') {
-        if (selectedStatus === 'healthy') return node.header?.trust_score > 80
+        if (selectedStatus === 'healthy') return (node.header?.trust_score ?? 0) > 80
         if (selectedStatus === 'medium')
           return (
-            node.header?.trust_score > 25 &&
-            node.header?.trust_score <= 80
+            (node.header?.trust_score ?? 0) > 25 &&
+            (node.header?.trust_score ?? 0) <= 80
           )
         if (selectedStatus === 'toxic')
-          return node.header?.trust_score <= 25
+          return (node.header?.trust_score ?? 0) <= 25
 
         return node.type === selectedStatus
       }
@@ -106,7 +117,7 @@ function App() {
     })
 
     const totalMembers = filteredNodes.reduce(
-      (sum: number, node: any) => sum + (node.header?.member_count || 0),
+      (sum: number, node: SimplifiedGroupNode) => sum + (node.header?.member_count || 0),
       0
     )
 
@@ -133,9 +144,8 @@ function App() {
 
       {/* MAIN CONTENT */}
       <main
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          selectedNode ? 'pr-96' : ''
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${selectedNode ? 'pr-96' : ''
+          }`}
       >
         <Header
           activeLocation={selectedDesa || 'Select Location'}

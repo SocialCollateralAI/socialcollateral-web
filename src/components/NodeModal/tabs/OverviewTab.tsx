@@ -1,6 +1,16 @@
 import React, { useState, useMemo } from "react";
-import type { Node } from "../types";
+import type { Node, Neighbor } from "../types";
 import formatCurrency from "../../../utils/formatCurrency";
+
+// Enriched neighbor with derived trust score
+interface EnrichedNeighbor {
+   id: string;
+   name: string;
+   distance: string;
+   relation: string;
+   trust_score: number;
+   risk: string;
+}
 
 interface OverviewTabProps {
    node: Node;
@@ -13,22 +23,22 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
    const enrichedNeighbors = useMemo(() => {
       console.log('Node Data for Neighbors:', node);
       console.log('Node overview:', node.overview);
-      
+
       // Use the detailed node data that was fetched by NodeModal
       const neighbors = node.overview?.neighbors || [];
       console.log('Direct neighbors:', neighbors);
       console.log('Neighbors length:', neighbors.length);
-      
+
       if (neighbors.length === 0) {
          console.log(`No neighbors found for node ${node.id}. This node appears to be isolated.`);
       }
-      const neighborsMap = new Map<string, any>();
-      
+      const neighborsMap = new Map<string, EnrichedNeighbor>();
+
       // Process direct neighbors from the fetched node data
-      neighbors.forEach((neighbor: any) => {
+      neighbors.forEach((neighbor: Neighbor) => {
          // The neighbor data already contains the risk category from API
          const riskCategory = neighbor.risk || "healthy";
-         
+
          // Convert risk score from neighbor if available, otherwise derive from risk category
          let trustScore = 50; // default
          if (neighbor.trust_score) {
@@ -42,17 +52,18 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                default: trustScore = 50;
             }
          }
-         
-         neighborsMap.set(neighbor.id, {
-            id: neighbor.id,
-            name: neighbor.name || neighbor.id,
+
+         const neighborId = neighbor.id || neighbor.name;
+         neighborsMap.set(neighborId, {
+            id: neighborId,
+            name: neighbor.name || neighborId,
             distance: neighbor.distance || "0km",
             relation: neighbor.relation || "Tetangga",
             trust_score: trustScore,
             risk: riskCategory
          });
       });
-      
+
       return Array.from(neighborsMap.values());
    }, [node]);
 
@@ -91,13 +102,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                <div className="relative">
                   <div className="flex bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
                      <div
-                        className={`h-4 transition-all duration-700 ${
-                           (node.header?.trust_score || 0) > 80
-                              ? "bg-blue-500"
-                              : (node.header?.trust_score || 0) >= 25
-                                ? "bg-yellow-500"
-                                : "bg-yellow-500"
-                        }`}
+                        className={`h-4 transition-all duration-700 ${(node.header?.trust_score || 0) > 80
+                           ? "bg-blue-500"
+                           : (node.header?.trust_score || 0) >= 25
+                              ? "bg-yellow-500"
+                              : "bg-yellow-500"
+                           }`}
                         style={{
                            width: `${node.overview?.primary_driver?.payment_score || 0}%`,
                         }}
@@ -106,13 +116,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                   <div className="flex justify-between mt-2">
                      <div className="flex items-center gap-2">
                         <div
-                           className={`w-3 h-3 rounded-full ${
-                              node.header.trust_score > 80
-                                 ? "bg-blue-500"
-                                 : node.header.trust_score >= 25
-                                   ? "bg-yellow-500"
-                                   : "bg-yellow-500"
-                           }`}
+                           className={`w-3 h-3 rounded-full ${node.header.trust_score > 80
+                              ? "bg-blue-500"
+                              : node.header.trust_score >= 25
+                                 ? "bg-yellow-500"
+                                 : "bg-yellow-500"
+                              }`}
                         ></div>
                         <span className="text-xs text-gray-700 font-bold">
                            {node.overview?.primary_driver?.payment_score || 0}%
@@ -128,13 +137,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                <div className="relative">
                   <div className="flex bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
                      <div
-                        className={`h-4 transition-all duration-700 ${
-                           node.header.trust_score > 80
-                              ? "bg-emerald-500"
-                              : node.header.trust_score >= 25
-                                ? "bg-red-500"
-                                : "bg-red-500"
-                        }`}
+                        className={`h-4 transition-all duration-700 ${node.header.trust_score > 80
+                           ? "bg-emerald-500"
+                           : node.header.trust_score >= 25
+                              ? "bg-red-500"
+                              : "bg-red-500"
+                           }`}
                         style={{
                            width: `${node.overview?.primary_driver?.social_score || 0}%`,
                         }}
@@ -146,13 +154,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                            {node.overview?.primary_driver?.social_score || 0}%
                         </span>
                         <div
-                           className={`w-3 h-3 rounded-full ${
-                              node.header.trust_score > 80
-                                 ? "bg-emerald-500"
-                                 : node.header.trust_score >= 25
-                                   ? "bg-red-500"
-                                   : "bg-red-500"
-                           }`}
+                           className={`w-3 h-3 rounded-full ${node.header.trust_score > 80
+                              ? "bg-emerald-500"
+                              : node.header.trust_score >= 25
+                                 ? "bg-red-500"
+                                 : "bg-red-500"
+                              }`}
                         ></div>
                      </div>
                   </div>
@@ -199,8 +206,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                            node.header.trust_score > 80
                               ? "#10b981"
                               : node.header.trust_score >= 25
-                                ? "#f59e0b"
-                                : "#ef4444"
+                                 ? "#f59e0b"
+                                 : "#ef4444"
                         }
                         strokeWidth="8"
                         fill="none"
@@ -324,23 +331,21 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                   .map((neighbor, index) => (
                      <div
                         key={index}
-                        className={`flex items-center justify-between p-2 rounded ${
-                           neighbor.risk === "toxic"
-                              ? "bg-red-50 border border-red-100"
-                              : neighbor.risk === "medium"
-                                ? "bg-yellow-50 border border-yellow-100"
-                                : "bg-green-50 border border-green-100"
-                        }`}
+                        className={`flex items-center justify-between p-2 rounded ${neighbor.risk === "toxic"
+                           ? "bg-red-50 border border-red-100"
+                           : neighbor.risk === "medium"
+                              ? "bg-yellow-50 border border-yellow-100"
+                              : "bg-green-50 border border-green-100"
+                           }`}
                      >
                         <div className="flex items-center gap-3">
                            <div
-                              className={`w-2 h-2 rounded-full ${
-                                 neighbor.risk === "toxic"
-                                    ? "bg-red-500"
-                                    : neighbor.risk === "medium"
-                                      ? "bg-yellow-500"
-                                      : "bg-green-500"
-                              }`}
+                              className={`w-2 h-2 rounded-full ${neighbor.risk === "toxic"
+                                 ? "bg-red-500"
+                                 : neighbor.risk === "medium"
+                                    ? "bg-yellow-500"
+                                    : "bg-green-500"
+                                 }`}
                            ></div>
                            <div>
                               <div className="font-medium text-gray-900">
