@@ -1,20 +1,21 @@
 /**
  * NetworkGraph - Network visualization component
- * 
- * This component is now a thin UI layer that delegates all Sigma.js logic
- * to the useSigmaInitialization hook.
+ * Phase 3: Refactored to use DashboardContext instead of props
  */
 import React from 'react'
-import type { NetworkGraphProps } from '../../types'
+import { useDashboard } from '../../context'
 import { useSigmaInitialization } from '../../hooks'
 import ZoomControls from './ZoomControls'
 
-const NetworkGraph: React.FC<NetworkGraphProps> = ({
-  selectedLocation,
-  selectedStatus,
-  onNodeSelect,
-  apiData
-}) => {
+const NetworkGraph: React.FC = () => {
+  // Get data from context
+  const {
+    selectedDesa,
+    selectedStatus,
+    setSelectedNode,
+    apiData
+  } = useDashboard()
+
   const {
     containerRef,
     handleZoomIn,
@@ -22,9 +23,9 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
     handleReset
   } = useSigmaInitialization({
     apiData,
-    selectedLocation,
+    selectedLocation: selectedDesa,
     selectedStatus,
-    onNodeSelect
+    onNodeSelect: setSelectedNode
   })
 
   return (
