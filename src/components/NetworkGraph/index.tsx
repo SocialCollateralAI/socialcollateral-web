@@ -8,11 +8,11 @@ import { useGraphData } from './userGraphData'
 import { useGraphHighlighting } from './useGraphHighlighting'
 import ZoomControls from './ZoomControls'
 
-const NetworkGraph: React.FC<NetworkGraphProps> = ({ 
-  selectedLocation, 
-  selectedStatus, 
-  onNodeSelect, 
-  apiData 
+const NetworkGraph: React.FC<NetworkGraphProps> = ({
+  selectedLocation,
+  selectedStatus,
+  onNodeSelect,
+  apiData
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const sigmaRef = useRef<SigmaType | null>(null)
@@ -27,7 +27,7 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
   // 2. Filter Logic (Tetap di sini atau bisa dipindah ke hook lain jika ingin lebih bersih lagi)
   const filteredGraph = useMemo(() => {
     const filtered = graph.copy()
-    
+
     filtered.forEachNode((node) => {
       const nodeInfo = nodeData.get(node)
       if (!nodeInfo) {
@@ -43,13 +43,13 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
           return
         }
       }
-      
+
       // Filter by Status
       const trustScore = nodeInfo.header?.trust_score || 0
       if (selectedStatus !== 'all') {
-        if (selectedStatus === 'healthy' && trustScore <= 80) filtered.dropNode(node)
-        else if (selectedStatus === 'medium' && (trustScore < 25 || trustScore > 80)) filtered.dropNode(node)
-        else if (selectedStatus === 'toxic' && trustScore >= 25) filtered.dropNode(node)
+        if (selectedStatus === 'healthy' && trustScore < 80) filtered.dropNode(node)
+        else if (selectedStatus === 'medium' && (trustScore <= 25 || trustScore >= 80)) filtered.dropNode(node)
+        else if (selectedStatus === 'toxic' && trustScore > 25) filtered.dropNode(node)
       }
     })
     return filtered
@@ -64,112 +64,112 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
         return
       }
 
-    if (!filteredGraph || filteredGraph.order === 0) {
-      console.log('No nodes in graph, skipping Sigma initialization')
-      return
-    }
-
-    // Clean up previous instance
-    if (sigmaRef.current) {
-      try {
-        sigmaRef.current.kill()
-      } catch (e) {
-        console.log('Error cleaning up previous Sigma instance:', e)
-      }
-      sigmaRef.current = null
-    }
-
-    try {
-      // Layout algorithms
-      circular.assign(filteredGraph)
-      const settings = forceAtlas2.inferSettings(filteredGraph)
-      forceAtlas2.assign(filteredGraph, { iterations: 50, settings })
-
-      // Clean any problematic node types
-      filteredGraph.forEachNode((node) => {
-        if (filteredGraph.hasNodeAttribute(node, 'type')) {
-          filteredGraph.removeNodeAttribute(node, 'type')
-        }
-      })
-
-      // Create Instance with minimal settings
-      const sigma = new Sigma(filteredGraph, containerRef.current, {
-        renderLabels: true,
-        labelFont: "Arial, sans-serif",
-        labelSize: 12,
-        defaultNodeColor: "#94a3b8",
-        defaultEdgeColor: "#e2e8f0"
-      })
-
-      // mark not-ready until fully wired
-      sigmaReadyRef.current = false
-      sigmaRef.current = sigma
-      console.log('Sigma initialized successfully (instance created)')
-
-      // small tick to allow internal Sigma setup before marking ready
-      setTimeout(() => {
-        sigmaReadyRef.current = true
-        try {
-          sigma.refresh()
-        } catch (e) {
-          console.warn('Refresh after init failed:', e)
-        }
-      }, 0)
-
-    } catch (error) {
-      console.error('Sigma initialization failed:', error)
-      sigmaRef.current = null
-      return
-    }
-
-    if (!sigmaRef.current) return
-
-    const sigma = sigmaRef.current
-
-    // Click Event Handlers (store to remove on cleanup)
-    const handleClickNode = ({ node }: { node: string }) => {
-      const nodeInfo = nodeData.get(node)
-      if (nodeInfo) {
-        setSelectedNodeId((prev) => {
-          const next = prev === node ? null : node
-          if (onNodeSelect) onNodeSelect(next ? nodeInfo : null)
-          return next
-        })
-      }
-    }
-
-    const handleClickStage = () => {
-      setSelectedNodeId(null)
-      if (onNodeSelect) onNodeSelect(null)
-    }
-
-    try {
-      sigma.on('clickNode', handleClickNode)
-      sigma.on('clickStage', handleClickStage)
-    } catch (e) {
-      console.warn('Failed to attach sigma event handlers:', e)
-    }
-
-    return () => {
-      // remove handlers first
-      try {
-        sigma.off && sigma.off('clickNode', handleClickNode)
-        sigma.off && sigma.off('clickStage', handleClickStage)
-      } catch (e) {
-        // ignore
+      if (!filteredGraph || filteredGraph.order === 0) {
+        console.log('No nodes in graph, skipping Sigma initialization')
+        return
       }
 
-      // kill instance
+      // Clean up previous instance
       if (sigmaRef.current) {
         try {
           sigmaRef.current.kill()
         } catch (e) {
-          console.log('Error during Sigma cleanup:', e)
+          console.log('Error cleaning up previous Sigma instance:', e)
         }
         sigmaRef.current = null
-        sigmaReadyRef.current = false
       }
-    }
+
+      try {
+        // Layout algorithms
+        circular.assign(filteredGraph)
+        const settings = forceAtlas2.inferSettings(filteredGraph)
+        forceAtlas2.assign(filteredGraph, { iterations: 50, settings })
+
+        // Clean any problematic node types
+        filteredGraph.forEachNode((node) => {
+          if (filteredGraph.hasNodeAttribute(node, 'type')) {
+            filteredGraph.removeNodeAttribute(node, 'type')
+          }
+        })
+
+        // Create Instance with minimal settings
+        const sigma = new Sigma(filteredGraph, containerRef.current, {
+          renderLabels: true,
+          labelFont: "Arial, sans-serif",
+          labelSize: 12,
+          defaultNodeColor: "#94a3b8",
+          defaultEdgeColor: "#e2e8f0"
+        })
+
+        // mark not-ready until fully wired
+        sigmaReadyRef.current = false
+        sigmaRef.current = sigma
+        console.log('Sigma initialized successfully (instance created)')
+
+        // small tick to allow internal Sigma setup before marking ready
+        setTimeout(() => {
+          sigmaReadyRef.current = true
+          try {
+            sigma.refresh()
+          } catch (e) {
+            console.warn('Refresh after init failed:', e)
+          }
+        }, 0)
+
+      } catch (error) {
+        console.error('Sigma initialization failed:', error)
+        sigmaRef.current = null
+        return
+      }
+
+      if (!sigmaRef.current) return
+
+      const sigma = sigmaRef.current
+
+      // Click Event Handlers (store to remove on cleanup)
+      const handleClickNode = ({ node }: { node: string }) => {
+        const nodeInfo = nodeData.get(node)
+        if (nodeInfo) {
+          setSelectedNodeId((prev) => {
+            const next = prev === node ? null : node
+            if (onNodeSelect) onNodeSelect(next ? nodeInfo : null)
+            return next
+          })
+        }
+      }
+
+      const handleClickStage = () => {
+        setSelectedNodeId(null)
+        if (onNodeSelect) onNodeSelect(null)
+      }
+
+      try {
+        sigma.on('clickNode', handleClickNode)
+        sigma.on('clickStage', handleClickStage)
+      } catch (e) {
+        console.warn('Failed to attach sigma event handlers:', e)
+      }
+
+      return () => {
+        // remove handlers first
+        try {
+          sigma.off && sigma.off('clickNode', handleClickNode)
+          sigma.off && sigma.off('clickStage', handleClickStage)
+        } catch (e) {
+          // ignore
+        }
+
+        // kill instance
+        if (sigmaRef.current) {
+          try {
+            sigmaRef.current.kill()
+          } catch (e) {
+            console.log('Error during Sigma cleanup:', e)
+          }
+          sigmaRef.current = null
+          sigmaReadyRef.current = false
+        }
+      }
     }
 
     // Use setTimeout to ensure DOM is ready
@@ -237,16 +237,16 @@ const NetworkGraph: React.FC<NetworkGraphProps> = ({
       <div
         ref={containerRef}
         className="w-full h-full"
-        style={{ 
+        style={{
           background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
           minHeight: '400px',
           minWidth: '400px'
         }}
       />
-      <ZoomControls 
-        onZoomIn={handleZoomIn} 
-        onZoomOut={handleZoomOut} 
-        onReset={handleReset} 
+      <ZoomControls
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onReset={handleReset}
       />
     </div>
   )
