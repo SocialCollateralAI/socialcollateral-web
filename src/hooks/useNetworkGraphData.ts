@@ -5,6 +5,7 @@
 import { useMemo } from 'react'
 import Graph from 'graphology'
 import type { GroupNode, Neighbor, GraphResponse, GraphNodeRaw, GraphEdgeRaw } from '../types'
+import { getRiskStatus, getRiskBasedNodeSize } from '../utils/riskStyles'
 
 // Type for legacy API format (fallback)
 interface LegacyGroupData {
@@ -59,31 +60,46 @@ export const useNetworkGraphData = (apiData?: GraphResponse | null) => {
                 const key = node.key
                 const attrs = node.attributes
 
-                // Add to Graph using provided coordinates and attributes
+                // Get trust score and determine consistent risk status
+                const trustScore = attrs.trust_score || 0
+                const riskStatus = getRiskStatus(trustScore)
+
+                // Calculate dynamic size using the new sizing logic
+                const nodeSize = getRiskBasedNodeSize(trustScore, riskStatus.label)
+
+                // Determine color based on risk variant
+                let nodeColor = "#94a3b8"
+                if (riskStatus.variant === 'success') nodeColor = "#22c55e"
+                else if (riskStatus.variant === 'warning') nodeColor = "#eab308"
+                else if (riskStatus.variant === 'danger') nodeColor = "#ef4444"
+
+                // Add to Graph using provided coordinates and calculated attributes
                 graph.addNode(key, {
                     label: attrs.label || key,
-                    size: attrs.size || 15,
-                    color: attrs.color || "#94a3b8",
+                    size: nodeSize,
+                    color: nodeColor,
                     x: attrs.x || Math.random() * 800,
                     y: attrs.y || Math.random() * 600,
-                    origColor: attrs.color || "#94a3b8",
-                    origSize: attrs.size || 15
+                    origColor: nodeColor,
+                    origSize: nodeSize
                     // Note: Don't set 'type' for nodes - use Sigma's default renderer
                 })
 
                 // Store basic metadata for API nodes
+                const nodeType = riskStatus.variant === 'success' ? 'healthy' :
+                    riskStatus.variant === 'warning' ? 'medium' : 'toxic'
+
                 nodeDataMap.set(key, {
                     id: key,
-                    type: attrs.risk_badge === 'HIGH RISK' ? 'toxic' :
-                        attrs.risk_badge === 'MED RISK' ? 'medium' : 'healthy',
+                    type: nodeType,
                     header: {
                         name: attrs.label || key,
                         location_village: attrs.location_village || '',
-                        member_count: Math.round(attrs.size * 2), // Estimate from size
-                        risk_badge: attrs.risk_badge || '',
-                        trust_score: attrs.trust_score || 0,
+                        member_count: Math.round(nodeSize * 2), // Estimate from size
+                        risk_badge: riskStatus.badgeLabel,
+                        trust_score: trustScore,
                         location_city: attrs.location_city || '',
-                        loan_eligibility: '',
+                        loan_eligibility: riskStatus.eligibilityLabel,
                         total_loan_amount: 0
                     },
                     overview: {
@@ -113,15 +129,18 @@ export const useNetworkGraphData = (apiData?: GraphResponse | null) => {
             nodeIds.forEach((key) => {
                 const group = groups[key]
 
-                // Color Logic
-                let color = "#94a3b8"
+                // Get trust score and determine consistent risk status
                 const trustScore = group.header?.trust_score || 0
-                if (trustScore > 80) color = "#22c55e"
-                else if (trustScore >= 25) color = "#eab308"
-                else color = "#ef4444"
+                const riskStatus = getRiskStatus(trustScore)
 
-                // Size Logic
-                const size = Math.min(Math.max(8 + (group.header?.member_count || 0) * 0.5, 12), 25)
+                // Calculate dynamic size using the new sizing logic
+                const size = getRiskBasedNodeSize(trustScore, riskStatus.label)
+
+                // Determine color based on risk variant
+                let color = "#94a3b8"
+                if (riskStatus.variant === 'success') color = "#22c55e"
+                else if (riskStatus.variant === 'warning') color = "#eab308"
+                else if (riskStatus.variant === 'danger') color = "#ef4444"
 
                 // Add to Graph
                 graph.addNode(key, {

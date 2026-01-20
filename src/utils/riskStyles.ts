@@ -42,6 +42,35 @@ export function getRiskStatus(trustScore: number): RiskStatus {
     }
 }
 
+/**
+ * Calculate node size based on trust score and risk status
+ * Uses different formulas per risk tier with inverted logic for high-risk nodes
+ * 
+ * @param trustScore - The numeric trust score (0-100)
+ * @param riskStatus - The risk status label ('Healthy', 'Medium', 'High Risk', 'Toxic')
+ * @returns The calculated node size
+ */
+export function getRiskBasedNodeSize(trustScore: number, riskStatus: string): number {
+    const status = riskStatus.toLowerCase()
+
+    // Healthy (Score >= 80): Formula 25 + floor((score - 80) * 1.25), Min 25, Max 50
+    if (status === 'healthy' || status === 'low risk') {
+        const size = 25 + Math.floor((trustScore - 80) * 1.25)
+        return Math.min(Math.max(size, 25), 50)
+    }
+
+    // Medium (Score > 25 but < 80): Formula 20 + floor((score - 26) * 0.19), Min 20, Max 30
+    if (status === 'medium' || status === 'med risk' || status === 'review') {
+        const size = 20 + Math.floor((trustScore - 26) * 0.19)
+        return Math.min(Math.max(size, 20), 30)
+    }
+
+    // High Risk/Toxic (Score <= 25): INVERTED - lower score = bigger node
+    // Formula: 20 + floor((25 - score) * 1.0), Min 20, Max 45
+    const size = 20 + Math.floor((25 - trustScore) * 1.0)
+    return Math.min(Math.max(size, 20), 45)
+}
+
 export const riskColorSchemes = {
     success: {
         bg: 'bg-green-50',
