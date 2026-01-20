@@ -65,7 +65,7 @@ function App() {
   // Convert API data into groups array for filtering stats
   const groupsArray = useMemo(() => {
     if (!apiData) return []
-    
+
     // Handle new API format with nodes array
     if (apiData.nodes) {
       return apiData.nodes.map((node: any) => ({
@@ -76,7 +76,7 @@ function App() {
         }
       }))
     }
-    
+
     // Fallback to old format
     return Object.values(apiData.groups || {})
   }, [apiData])
@@ -133,9 +133,8 @@ function App() {
 
       {/* MAIN CONTENT */}
       <main
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          selectedNode ? 'pr-96' : ''
-        }`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${selectedNode ? 'pr-96' : ''
+          }`}
       >
         <Header
           activeLocation={selectedDesa || 'Select Location'}
