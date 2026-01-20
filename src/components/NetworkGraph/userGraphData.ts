@@ -7,7 +7,7 @@ export const useGraphData = (apiData?: any) => {
     const data = apiData
     const graph = new Graph()
     const nodeDataMap = new Map<string, GroupNode>()
-    
+
     // Return empty graph if no data
     if (!data) {
       return { graph, nodeData: nodeDataMap }
@@ -19,32 +19,43 @@ export const useGraphData = (apiData?: any) => {
       data.nodes.forEach((node: any) => {
         const key = node.key
         const attrs = node.attributes
-        
+
+        // Calculate color based on trust score to ensure consistency with NodeModal
+        // Logic: >=80 (Green/Healthy), >25 (Yellow/Medium), <=25 (Red/Toxic)
+        const trustScore = attrs.trust_score || 0
+        let nodeColor = "#ef4444" // Default Red (Toxic)
+        if (trustScore >= 80) nodeColor = "#22c55e" // Green (Healthy)
+        else if (trustScore > 25) nodeColor = "#eab308" // Yellow (Medium)
+
         // Add to Graph using provided coordinates and attributes
         graph.addNode(key, {
           label: attrs.label || key,
           size: attrs.size || 15,
-          color: attrs.color || "#94a3b8",
+          color: nodeColor,
           x: attrs.x || Math.random() * 800,
           y: attrs.y || Math.random() * 600,
-          origColor: attrs.color || "#94a3b8",
+          origColor: nodeColor,
           origSize: attrs.size || 15
           // Note: Don't set 'type' for nodes - use Sigma's default renderer
         })
 
+        // Calculate derived values ensures consistency across UI
+        const calculatedBadge = trustScore >= 80 ? 'LOW RISK' : trustScore > 25 ? 'MED RISK' : 'HIGH RISK'
+        const calculatedType = trustScore >= 80 ? 'healthy' : trustScore > 25 ? 'medium' : 'toxic'
+        const calculatedEligibility = trustScore >= 80 ? 'Eligible' : trustScore > 25 ? 'Review' : 'High Risk'
+
         // Store basic metadata for API nodes
         nodeDataMap.set(key, {
           id: key,
-          type: attrs.risk_badge === 'HIGH RISK' ? 'toxic' : 
-                attrs.risk_badge === 'MED RISK' ? 'medium' : 'healthy',
+          type: calculatedType,
           header: {
             name: attrs.label,
             location_village: attrs.location_village,
             member_count: Math.round(attrs.size * 2), // Estimate from size
-            risk_badge: attrs.risk_badge,
-            trust_score: attrs.trust_score || 0,
+            risk_badge: calculatedBadge,
+            trust_score: trustScore,
             location_city: attrs.location_city || '',
-            loan_eligibility: '',
+            loan_eligibility: calculatedEligibility,
             total_loan_amount: 0
           },
           overview: {
@@ -72,12 +83,12 @@ export const useGraphData = (apiData?: any) => {
       // 1. Add Nodes (old format)
       nodeIds.forEach((key) => {
         const group = groups[key]
-        
+
         // Color Logic
         let color = "#94a3b8"
         const trustScore = group.header?.trust_score || 0
         if (trustScore > 80) color = "#22c55e"
-        else if (trustScore >= 25) color = "#eab308"
+        else if (trustScore > 25) color = "#eab308"
         else color = "#ef4444"
 
         // Size Logic
@@ -103,25 +114,25 @@ export const useGraphData = (apiData?: any) => {
         })
       })
 
-    // 2. Add Edges
-    nodeIds.forEach(key => {
-      const group = groups[key]
-      if (group.overview?.neighbors) {
-        group.overview.neighbors.forEach((neighbor: Neighbor) => {
-          if (neighbor.id && groups[neighbor.id]) {
-            if (!graph.hasEdge(key, neighbor.id) && !graph.hasEdge(neighbor.id, key)) {
-              const edgeSize = neighbor.relation === 'Tetangga' ? 1 : 2
-              graph.addEdge(key, neighbor.id, {
-                size: edgeSize,
-                color: '#e2e8f0',
-                origSize: edgeSize,
-                origColor: '#e2e8f0'
-              })
+      // 2. Add Edges
+      nodeIds.forEach(key => {
+        const group = groups[key]
+        if (group.overview?.neighbors) {
+          group.overview.neighbors.forEach((neighbor: Neighbor) => {
+            if (neighbor.id && groups[neighbor.id]) {
+              if (!graph.hasEdge(key, neighbor.id) && !graph.hasEdge(neighbor.id, key)) {
+                const edgeSize = neighbor.relation === 'Tetangga' ? 1 : 2
+                graph.addEdge(key, neighbor.id, {
+                  size: edgeSize,
+                  color: '#e2e8f0',
+                  origSize: edgeSize,
+                  origColor: '#e2e8f0'
+                })
+              }
             }
-          }
-        })
-      }
-    })
+          })
+        }
+      })
     } // Close else block
 
     // Clean up any node types that might cause Sigma rendering issues
