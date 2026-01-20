@@ -3,7 +3,7 @@
  * Phase 3: Ultra-clean - just Provider and Layout
  */
 import { DashboardProvider } from './context'
-import { MainLayout } from './components/layout'
+import { MainLayout } from './layout'
 
 function App() {
   return (
