@@ -1,9 +1,13 @@
 /**
  * ModalHeader - Header section of NodeModal with trust score styling
- * Phase 3: Extracted from NodeModal/index.tsx
+ * 
+ * IMPORTANT: Colors and labels are ALWAYS derived from trust_score via getRiskStyling()
+ * This ensures 100% consistency with Graph coloring, ignoring potentially
+ * inconsistent risk_badge values from API.
  */
 import React from 'react'
 import type { GroupNode } from '../../../types'
+import { getRiskStyling } from '../../../utils/riskStyles'
 
 interface ModalHeaderProps {
     node: GroupNode
@@ -11,35 +15,17 @@ interface ModalHeaderProps {
 }
 
 const ModalHeader: React.FC<ModalHeaderProps> = ({ node, onClose }) => {
-    const trustScore = node.header.trust_score
-
-    // Determine color scheme based on trust score
-    const colorScheme = trustScore > 80
-        ? {
-            bg: 'bg-green-50',
-            text: 'text-green-700',
-            badge: 'bg-green-200 text-green-800 border-green-400'
-        }
-        : trustScore > 25
-            ? {
-                bg: 'bg-yellow-50',
-                text: 'text-yellow-700',
-                badge: 'bg-yellow-200 text-yellow-800 border-yellow-400'
-            }
-            : {
-                bg: 'bg-red-50',
-                text: 'text-red-700',
-                badge: 'bg-red-200 text-red-800 border-red-400'
-            }
+    const trustScore = node.header.trust_score ?? 0
+    const { colors, badgeLabel } = getRiskStyling(trustScore)
 
     return (
-        <div className={`p-6 ${colorScheme.bg} ${colorScheme.text} border-b border-gray-100 relative`}>
+        <div className={`p-6 ${colors.bg} ${colors.text} border-b border-gray-100 relative`}>
             <div className="flex items-start justify-between mb-2">
                 <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                         <h3 className="text-xl font-bold text-gray-900">{node.header.name}</h3>
-                        <div className={`px-2 py-1 rounded-xl border text-xs font-bold uppercase tracking-wide ${colorScheme.badge}`}>
-                            {node.header.risk_badge}
+                        <div className={`px-2 py-1 rounded-xl border text-xs font-bold uppercase tracking-wide ${colors.badge}`}>
+                            {badgeLabel}
                         </div>
                     </div>
                     <div className="text-sm text-gray-600 flex items-center gap-1">
