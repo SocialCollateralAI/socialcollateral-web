@@ -60,11 +60,12 @@ export const useSigmaInitialization = ({
             }
 
             // Filter by Status
+            // Thresholds: Healthy >= 80, Medium 26-79, Toxic <= 25
             const trustScore = nodeInfo.header?.trust_score || 0
             if (selectedStatus !== 'all') {
-                if (selectedStatus === 'healthy' && trustScore <= 80) filtered.dropNode(node)
-                else if (selectedStatus === 'medium' && (trustScore < 25 || trustScore > 80)) filtered.dropNode(node)
-                else if (selectedStatus === 'toxic' && trustScore >= 25) filtered.dropNode(node)
+                if (selectedStatus === 'healthy' && trustScore < 80) filtered.dropNode(node)
+                else if (selectedStatus === 'medium' && (trustScore <= 25 || trustScore >= 80)) filtered.dropNode(node)
+                else if (selectedStatus === 'toxic' && trustScore > 25) filtered.dropNode(node)
             }
         })
         return filtered
