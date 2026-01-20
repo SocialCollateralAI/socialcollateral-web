@@ -2,6 +2,30 @@ import { useMemo } from 'react'
 import Graph from 'graphology'
 import type { GroupNode, Neighbor } from './NetworkGraph.types'
 
+/**
+ * Calculate node size based on trust score and risk status
+ * Matches Backend seeder logic for visual consistency
+ */
+function calculateNodeSize(trustScore: number, riskStatus: 'healthy' | 'medium' | 'toxic'): number {
+  if (riskStatus === 'healthy') {
+    // HEALTHY: 25-50px based on trust score
+    // Trust 80 → 25px, Trust 100 → 50px
+    const size = 25 + Math.floor((trustScore - 80) * 1.25) // (50-25)/(100-80) = 1.25
+    return Math.max(25, Math.min(50, size))
+  } else if (riskStatus === 'medium') {
+    // MEDIUM: 20-30px based on trust score (adjusted to avoid ambiguity with toxic)
+    // Trust 26 → 20px, Trust 79 → 30px
+    const size = 20 + Math.floor((trustScore - 26) * 0.19) // (30-20)/(79-26) ≈ 0.19
+    return Math.max(20, Math.min(30, size))
+  } else {
+    // TOXIC: 20-45px (INVERTED - lower trust = bigger size for urgency!)
+    // Trust 25 → 20px, Trust 0 → 45px
+    const invertedUrgency = Math.max(0, 25 - trustScore)
+    const size = 20 + Math.floor(invertedUrgency * 1.0) // (45-20)/25 = 1.0
+    return Math.max(20, Math.min(45, size))
+  }
+}
+
 export const useGraphData = (apiData?: any) => {
   return useMemo(() => {
     const data = apiData
@@ -27,21 +51,26 @@ export const useGraphData = (apiData?: any) => {
         if (trustScore >= 80) nodeColor = "#22c55e" // Green (Healthy)
         else if (trustScore > 25) nodeColor = "#eab308" // Yellow (Medium)
 
-        // Add to Graph using provided coordinates and attributes
+        // Calculate derived values for consistency
+        const calculatedType = trustScore >= 80 ? 'healthy' : trustScore > 25 ? 'medium' : 'toxic'
+
+        // Calculate node size dynamically (matches Backend logic)
+        const calculatedSize = calculateNodeSize(trustScore, calculatedType)
+
+        // Add to Graph using calculated size
         graph.addNode(key, {
           label: attrs.label || key,
-          size: attrs.size || 15,
+          size: calculatedSize,
           color: nodeColor,
           x: attrs.x || Math.random() * 800,
           y: attrs.y || Math.random() * 600,
           origColor: nodeColor,
-          origSize: attrs.size || 15
+          origSize: calculatedSize
           // Note: Don't set 'type' for nodes - use Sigma's default renderer
         })
 
         // Calculate derived values ensures consistency across UI
         const calculatedBadge = trustScore >= 80 ? 'LOW RISK' : trustScore > 25 ? 'MED RISK' : 'HIGH RISK'
-        const calculatedType = trustScore >= 80 ? 'healthy' : trustScore > 25 ? 'medium' : 'toxic'
         const calculatedEligibility = trustScore >= 80 ? 'Eligible' : trustScore > 25 ? 'Review' : 'High Risk'
 
         // Store basic metadata for API nodes
@@ -84,15 +113,18 @@ export const useGraphData = (apiData?: any) => {
       nodeIds.forEach((key) => {
         const group = groups[key]
 
-        // Color Logic
+        // Color Logic (updated to match new threshold)
         let color = "#94a3b8"
         const trustScore = group.header?.trust_score || 0
-        if (trustScore > 80) color = "#22c55e"
+        if (trustScore >= 80) color = "#22c55e"
         else if (trustScore > 25) color = "#eab308"
         else color = "#ef4444"
 
-        // Size Logic
-        const size = Math.min(Math.max(8 + (group.header?.member_count || 0) * 0.5, 12), 25)
+        // Calculate risk type for size calculation
+        const riskType = trustScore >= 80 ? 'healthy' : trustScore > 25 ? 'medium' : 'toxic'
+
+        // Size Logic - use same calculation as new format
+        const size = calculateNodeSize(trustScore, riskType)
 
         // Add to Graph
         graph.addNode(key, {
