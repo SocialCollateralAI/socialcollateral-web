@@ -3,11 +3,11 @@
  * Phase 3: Extracted from App.tsx for cleaner architecture
  */
 import React, { type ReactNode } from 'react'
-import Sidebar from '../Sidebar'
-import Header from '../Header'
-import NetworkGraph from '../NetworkGraph/index'
-import NodeModalWrapper from '../NodeModal/NodeModalWrapper'
-import { useDashboard } from '../../context'
+import Sidebar from '../components/Sidebar'
+import Header from '../components/Header'
+import NetworkGraph from '../components/NetworkGraph/index'
+import NodeModalWrapper from '../components/NodeModal/NodeModalWrapper'
+import { useDashboard } from '../context'
 
 interface MainLayoutProps {
     children?: ReactNode
