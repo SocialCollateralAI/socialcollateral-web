@@ -37,14 +37,14 @@ export const useNodeDetails = ({ node }: UseNodeDetailsOptions): UseNodeDetailsR
 
         try {
             setLoadingDetails(true)
-            console.log('Fetching details for node ID:', node.id)
+
             const details = await fetchGroupDetails(node.id)
-            console.log('Fetched group details:', details)
+
             setGroupDetails(details as GroupNode)
         } catch (error) {
             console.error('Failed to fetch group details:', error)
             // Use existing node data as fallback
-            console.log('Using fallback node data:', node)
+
             setGroupDetails(node)
         } finally {
             setLoadingDetails(false)
