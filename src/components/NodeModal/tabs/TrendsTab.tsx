@@ -52,7 +52,7 @@ const TrendsTab: React.FC<TrendsTabProps> = ({ node }) => {
                className={`h-52 w-full rounded ${node.header.trust_score > 80 ? "bg-gradient-to-b from-green-50/30 to-transparent" : node.header.trust_score >= 25 ? "bg-gradient-to-b from-amber-50/30 to-transparent" : "bg-gradient-to-b from-red-50/30 to-transparent"}`}
             >
                <LineChart
-                  dataset={node.trends.repayment_history}
+                  dataset={node.trends.repayment_history as any}
                   xAxis={[
                      {
                         scaleType: "point",
@@ -220,7 +220,7 @@ const TrendsTab: React.FC<TrendsTabProps> = ({ node }) => {
 
             <div className="h-56 w-full bg-gray-50 rounded-lg py-2">
                <BarChart
-                  dataset={node.trends.asset_growth}
+                  dataset={node.trends.asset_growth as any}
                   xAxis={[
                      {
                         scaleType: "band",

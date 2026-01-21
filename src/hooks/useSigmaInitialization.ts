@@ -19,7 +19,7 @@ interface UseSigmaOptions {
 }
 
 interface UseSigmaReturn {
-    containerRef: RefObject<HTMLDivElement>
+    containerRef: RefObject<HTMLDivElement | null>
     handleZoomIn: () => void
     handleZoomOut: () => void
     handleReset: () => void
