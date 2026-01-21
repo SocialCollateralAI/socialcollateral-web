@@ -7,7 +7,7 @@ import { useDashboard } from '../../context'
 import NodeModal from './index'
 
 const NodeModalWrapper: React.FC = () => {
-    const { selectedNode, setSelectedNode, handleApproveLoan } = useDashboard()
+    const { selectedNode, setSelectedNode, handleApproveLoan, apiData } = useDashboard()
 
     if (!selectedNode) return null
 
@@ -16,6 +16,7 @@ const NodeModalWrapper: React.FC = () => {
             node={selectedNode}
             onClose={() => setSelectedNode(null)}
             onApprove={handleApproveLoan}
+            apiData={apiData}
         />
     )
 }
