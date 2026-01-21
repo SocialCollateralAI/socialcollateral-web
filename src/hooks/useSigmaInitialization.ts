@@ -7,7 +7,6 @@ import Sigma from 'sigma'
 import type SigmaType from 'sigma'
 import { circular } from 'graphology-layout'
 import forceAtlas2 from 'graphology-layout-forceatlas2'
-import type Graph from 'graphology'
 import type { GroupNode, GraphResponse } from '../types'
 import { useNetworkGraphData } from './useNetworkGraphData'
 import { useGraphHighlighting } from './useGraphHighlighting'
@@ -75,12 +74,12 @@ export const useSigmaInitialization = ({
     useEffect(() => {
         const initializeSigma = () => {
             if (!containerRef.current) {
-                console.log('Container ref not ready, skipping Sigma initialization')
+
                 return
             }
 
             if (!filteredGraph || filteredGraph.order === 0) {
-                console.log('No nodes in graph, skipping Sigma initialization')
+
                 return
             }
 
@@ -88,8 +87,8 @@ export const useSigmaInitialization = ({
             if (sigmaRef.current) {
                 try {
                     sigmaRef.current.kill()
-                } catch (e) {
-                    console.log('Error cleaning up previous Sigma instance:', e)
+                } catch {
+                    // Silently ignore cleanup errors
                 }
                 sigmaRef.current = null
             }
@@ -119,7 +118,7 @@ export const useSigmaInitialization = ({
                 // mark not-ready until fully wired
                 sigmaReadyRef.current = false
                 sigmaRef.current = sigma
-                console.log('Sigma initialized successfully (instance created)')
+
 
                 // small tick to allow internal Sigma setup before marking ready
                 setTimeout(() => {
@@ -170,16 +169,16 @@ export const useSigmaInitialization = ({
                 try {
                     sigma.off && sigma.off('clickNode', handleClickNode)
                     sigma.off && sigma.off('clickStage', handleClickStage)
-                } catch (e) {
-                    // ignore
+                } catch {
+                    // Silently ignore event handler removal errors
                 }
 
                 // kill instance
                 if (sigmaRef.current) {
                     try {
                         sigmaRef.current.kill()
-                    } catch (e) {
-                        console.log('Error during Sigma cleanup:', e)
+                    } catch {
+                        // Silently ignore cleanup errors
                     }
                     sigmaRef.current = null
                     sigmaReadyRef.current = false
@@ -195,8 +194,8 @@ export const useSigmaInitialization = ({
             if (sigmaRef.current) {
                 try {
                     sigmaRef.current.kill()
-                } catch (e) {
-                    console.log('Error during Sigma cleanup:', e)
+                } catch {
+                    // Silently ignore cleanup errors
                 }
                 sigmaRef.current = null
             }
