@@ -11,7 +11,7 @@ export async function fetchGraph(): Promise<GraphResponse> {
   const api = getAPIClient()
   try {
     const res = await api.get<GraphResponse>('/graph')
-    console.log('fetchGraph success', res.data)
+
     return res.data
   } catch (err) {
     console.error('fetchGraph error', err)
@@ -23,7 +23,7 @@ export async function fetchGroupDetails(groupId: string): Promise<GroupDetailsRe
   const api = getAPIClient()
   try {
     const res = await api.get<GroupDetailsResponse>(`/groups/${groupId}`)
-    console.log('fetchGroupDetails success', res.data)
+
     return res.data
   } catch (err) {
     console.error('fetchGroupDetails error', err)
