@@ -56,7 +56,7 @@ export const useGraphHighlighting = ({ sigmaInstance, selectedNodeId, nodeData }
 
                 // Ensure no invalid type is set
                 if (g.hasNodeAttribute(node, 'type')) {
-                    console.log(`Removing type attribute from node ${node}:`, g.getNodeAttribute(node, 'type'))
+
                     g.removeNodeAttribute(node, 'type')
                 }
             })
@@ -67,15 +67,11 @@ export const useGraphHighlighting = ({ sigmaInstance, selectedNodeId, nodeData }
                 }
             } catch (error) {
                 console.error('Sigma refresh error:', error)
-                console.log('Graph nodes count:', g.order)
-                console.log('Graph edges count:', g.size)
+
 
                 // Debug: Check all node attributes
                 g.forEachNode((node) => {
-                    const attrs = g.getNodeAttributes(node)
-                    console.log(`Node ${node} attributes:`, attrs)
                     if (g.hasNodeAttribute(node, 'type')) {
-                        console.log(`Removing problematic type from node ${node}`)
                         g.removeNodeAttribute(node, 'type')
                     }
                 })
