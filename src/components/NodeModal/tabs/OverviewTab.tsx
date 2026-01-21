@@ -24,8 +24,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node, graphNeighbors }) => {
 
    // Enrich neighbors - prioritize graph-derived neighbors (source of truth for visual connections)
    const enrichedNeighbors = useMemo(() => {
-      console.log('Node Data for Neighbors:', node);
-      console.log('Graph Neighbors:', graphNeighbors);
+
 
       // Use graph-derived neighbors if available (matches visual canvas)
       // Fall back to API neighbors if graph neighbors not provided
@@ -33,11 +32,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node, graphNeighbors }) => {
          ? graphNeighbors
          : (node.overview?.neighbors || []);
 
-      console.log('Using neighbors:', neighbors.length, 'from:', graphNeighbors?.length ? 'graph edges' : 'API data');
 
-      if (neighbors.length === 0) {
-         console.log(`No neighbors found for node ${node.id}. This node appears to be isolated.`);
-      }
+
+
       const neighborsMap = new Map<string, EnrichedNeighbor>();
 
       // Process direct neighbors from the fetched node data
