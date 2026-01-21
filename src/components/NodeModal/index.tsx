@@ -2,9 +2,10 @@
  * NodeModal - Main modal component for group details
  * Phase 3: Refactored to use extracted parts and useNodeDetails hook
  */
-import React, { useState, useEffect, useRef } from 'react'
-import type { GroupNode } from '../../types'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
+import type { GroupNode, GraphResponse, Neighbor } from '../../types'
 import { useNodeDetails } from '../../hooks/useNodeDetails'
+import { getRiskStatus } from '../../utils/riskStyles'
 import { ModalHeader, ScoreCard } from './parts'
 import OverviewTab from './tabs/OverviewTab'
 import TrendsTab from './tabs/TrendsTab'
@@ -15,9 +16,10 @@ interface NodeModalProps {
   node: GroupNode | null
   onClose: () => void
   onApprove?: (amount: number) => void
+  apiData?: GraphResponse | null
 }
 
-const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
+const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove, apiData }) => {
   const [activeTab, setActiveTab] = useState('overview')
   const [showSupervisorOverride, setShowSupervisorOverride] = useState(false)
   const [supervisorPasskey, setSupervisorPasskey] = useState('')
@@ -26,6 +28,40 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
 
   // Use extracted hook for node details
   const { groupDetails, loadingDetails, loanApproved, setLoanApproved } = useNodeDetails({ node })
+
+  // Derive neighbors from graph edges (source of truth for visual connections)
+  const graphNeighbors = useMemo((): Neighbor[] => {
+    if (!apiData?.edges || !apiData?.nodes || !node) return []
+
+    const nodeId = node.id
+    const connectedNodeIds = new Set<string>()
+
+    // Find all edges connected to this node
+    apiData.edges.forEach(edge => {
+      if (edge.source === nodeId) connectedNodeIds.add(edge.target)
+      if (edge.target === nodeId) connectedNodeIds.add(edge.source)
+    })
+
+    // Build neighbor objects from connected nodes with proper risk status
+    return apiData.nodes
+      .filter(n => connectedNodeIds.has(n.key))
+      .map(n => {
+        const trustScore = n.attributes.trust_score || 0
+        const riskStatus = getRiskStatus(trustScore)
+        // Map variant to risk category
+        const riskCategory = riskStatus.variant === 'success' ? 'healthy' :
+          riskStatus.variant === 'warning' ? 'medium' : 'toxic'
+
+        return {
+          id: n.key,
+          name: n.attributes.label || n.key,
+          risk: riskCategory,
+          distance: 'N/A',
+          relation: 'Connected',
+          trust_score: trustScore
+        }
+      })
+  }, [apiData, node])
 
   // Reset scroll position when tab changes
   useEffect(() => {
@@ -108,8 +144,8 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
               setActiveTab(tab.id)
             }}
             className={`flex-1 px-3 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.id
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             type="button"
           >
@@ -133,7 +169,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ node, onClose, onApprove }) => {
           </div>
         ) : (
           <>
-            {activeTab === 'overview' && <OverviewTab node={displayNode} />}
+            {activeTab === 'overview' && <OverviewTab node={displayNode} graphNeighbors={graphNeighbors} />}
             {activeTab === 'trends' && <TrendsTab node={displayNode} />}
             {activeTab === 'insights' && <InsightsTab node={displayNode} />}
             {activeTab === 'decisions' && (
