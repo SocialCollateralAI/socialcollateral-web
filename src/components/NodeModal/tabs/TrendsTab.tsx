@@ -250,53 +250,6 @@ const TrendsTab: React.FC<TrendsTabProps> = ({ node }) => {
                />
             </div>
          </div>
-
-         {/* SEASONALITY DETECTION HEATMAP */}
-         {/*<div className="bg-white border border-gray-200 rounded-lg p-6">
-            <div className="flex items-center justify-between mb-6">
-               <div className="flex items-center gap-2">
-                  <svg
-                     className="w-4 h-4 text-gray-400"
-                     fill="none"
-                     stroke="currentColor"
-                     viewBox="0 0 24 24"
-                  >
-                     <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                     />
-                  </svg>
-                  <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                     SEASONALITY DETECTION
-                  </h4>
-               </div>
-               <div className="text-xs text-gray-500">12 Month Lookback</div>
-            </div>
-
-            <div className="grid grid-cols-12 gap-2 mb-3">
-               {node.trends.seasonality_heatmap.map((level, i) => {
-                  const getHeatmapColor = (value: number) => {
-                     if (value === 1) return "#86efac";
-                     if (value === 2) return "#fde047";
-                     if (value === 3) return "#fca5a5";
-                     return "#e5e7eb";
-                  };
-                  return (
-                     <div
-                        key={i}
-                        className="h-10 rounded transition-all hover:opacity-80 cursor-pointer"
-                        style={{ backgroundColor: getHeatmapColor(level) }}
-                        title={`Month ${i + 1}: Level ${level}`}
-                     />
-                  );
-               })}
-            </div>
-            <div className="text-xs text-gray-500 italic">
-               Heatmap indicates payment latency intensity per month.
-            </div>
-         </div>*/}
       </div>
    );
 };
