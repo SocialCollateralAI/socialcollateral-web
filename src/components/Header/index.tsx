@@ -1,23 +1,27 @@
-import { useState } from 'react';
-import { MapPin, Users, Layers, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+/**
+ * Header - Dashboard header with location info and stats
+ * Phase 3: Refactored to use DashboardContext instead of props
+ */
+import { useState } from 'react'
+import { MapPin, Users, Layers, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { useDashboard } from '../../context'
 
-interface HeaderProps {
-  activeLocation: string;
-  totalGroups: number;
-  totalMembers: number;
-}
+const Header = () => {
+  const [isExpanded, setIsExpanded] = useState(false)
 
-const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  // Get data from context
+  const { selectedDesa, filteredStats } = useDashboard()
+  const activeLocation = selectedDesa || 'Select Location'
+  const { totalGroups, totalMembers } = filteredStats
 
   const getLocationDisplay = (location: string) => {
     if (!location || location === 'all' || location === '') {
-      return 'Semua Lokasi';
+      return 'Semua Lokasi'
     }
-    return location; // return nama desa (ex: "Desa Ciseeng")
-  };
+    return location
+  }
 
-  const formatNumber = (num: number) => new Intl.NumberFormat('id-ID').format(num);
+  const formatNumber = (num: number) => new Intl.NumberFormat('id-ID').format(num)
 
   return (
     <div className="absolute left-80  p-4 z-30">
@@ -31,7 +35,7 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 transition-transform duration-300 ${isExpanded ? 'scale-110' : ''}`}>
-               <MapPin className="w-5 h-5" />
+              <MapPin className="w-5 h-5" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-gray-900 leading-tight">
@@ -50,32 +54,31 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
 
         {/* --- DETAILS SECTION --- */}
         <div
-          className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
-            isExpanded
+          className={`grid transition-all duration-300 ease-in-out overflow-hidden ${isExpanded
               ? 'grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t border-gray-100'
               : 'grid-rows-[0fr] opacity-0 mt-0 pt-0 border-t-0 border-transparent'
-          }`}
+            }`}
         >
           <div className="min-h-0">
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                 <div className="flex items-center gap-1.5 text-gray-500 mb-1">
-                    <Layers className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-wide">Kelompok</span>
-                 </div>
-                 <div className="text-xl font-bold text-gray-900 leading-none">
-                   {formatNumber(totalGroups)}
-                 </div>
+                <div className="flex items-center gap-1.5 text-gray-500 mb-1">
+                  <Layers className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-bold uppercase tracking-wide">Kelompok</span>
+                </div>
+                <div className="text-xl font-bold text-gray-900 leading-none">
+                  {formatNumber(totalGroups)}
+                </div>
               </div>
 
               <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                 <div className="flex items-center gap-1.5 text-gray-500 mb-1">
-                    <Users className="w-3.5 h-3.5" />
-                    <span className="text-[10px] font-bold uppercase tracking-wide">Anggota</span>
-                 </div>
-                 <div className="text-xl font-bold text-gray-900 leading-none">
-                   {formatNumber(totalMembers)}
-                 </div>
+                <div className="flex items-center gap-1.5 text-gray-500 mb-1">
+                  <Users className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-bold uppercase tracking-wide">Anggota</span>
+                </div>
+                <div className="text-xl font-bold text-gray-900 leading-none">
+                  {formatNumber(totalMembers)}
+                </div>
               </div>
             </div>
 
@@ -90,7 +93,7 @@ const Header = ({ activeLocation, totalGroups, totalMembers }: HeaderProps) => {
 
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

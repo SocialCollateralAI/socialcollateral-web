@@ -1,76 +1,91 @@
-import { useMemo, useEffect } from 'react';
-import { Activity, Filter, User } from 'lucide-react';
-import CustomSelect from '../../common/CustomSelect';
-import WalletCard from './WalletCard';
-import type { SidebarProps } from './types';
+/**
+ * Sidebar - Location and status filtering component
+ * Phase 3: Refactored to use DashboardContext instead of props
+ */
+import { useMemo, useEffect } from 'react'
+import { Activity, Filter, User } from 'lucide-react'
+import CustomSelect from '../../common/CustomSelect'
+import WalletCard from './WalletCard'
+import { useDashboard } from '../../context'
+import type { GraphNodeRaw } from '../../types'
 
-const Sidebar = ({
-  selectedKabupaten,
-  onKabupatenChange,
-  selectedDesa,
-  onDesaChange,
-  selectedStatus,
-  onStatusChange,
-  walletBalance,
-  apiData
-}: SidebarProps) => {
+// Type for simplified group data in sidebar
+interface SimplifiedGroup {
+  header?: {
+    location_city?: string
+    location_village?: string
+    trust_score?: number
+  }
+}
 
-  const groupsArray = useMemo(() => {
-    if (!apiData) return [];
-    
+const Sidebar = () => {
+  // Get all data from context
+  const {
+    selectedKabupaten,
+    handleKabupatenChange,
+    selectedDesa,
+    setSelectedDesa,
+    selectedStatus,
+    setSelectedStatus,
+    walletBalance,
+    apiData
+  } = useDashboard()
+
+  const groupsArray = useMemo((): SimplifiedGroup[] => {
+    if (!apiData) return []
+
     // Handle new API format with nodes array
     if (apiData.nodes) {
-      return apiData.nodes.map((node: any) => ({
+      return apiData.nodes.map((node: GraphNodeRaw): SimplifiedGroup => ({
         header: {
           location_city: node.attributes?.location_city || '',
           location_village: node.attributes?.location_village || '',
           trust_score: node.attributes?.trust_score || 0
         }
-      }));
+      }))
     }
-    
-    // Fallback to old format
-    return Object.values(apiData.groups || {});
-  }, [apiData]);
+
+    // Fallback to old format (shouldn't happen with new API)
+    return []
+  }, [apiData])
 
   const kabupatenOptions = useMemo(() => {
-    const cities = Array.from(new Set(groupsArray.map((g: any) => g.header?.location_city).filter(Boolean))) as string[];
-    return cities.map((c: string) => ({ id: c, label: c }));
-  }, [groupsArray]);
+    const cities = Array.from(new Set(groupsArray.map((g: SimplifiedGroup) => g.header?.location_city).filter(Boolean))) as string[]
+    return cities.map((c: string) => ({ id: c, label: c }))
+  }, [groupsArray])
 
   const desaOptions = useMemo(() => {
-    if (!selectedKabupaten) return [];
+    if (!selectedKabupaten) return []
     const villages = Array.from(new Set(groupsArray
-      .filter((g: any) => g.header?.location_city === selectedKabupaten)
-      .map((g: any) => g.header?.location_village)
-      .filter(Boolean))) as string[];
-    return villages.map((v: string) => ({ id: v, label: v }));
-  }, [groupsArray, selectedKabupaten]);
+      .filter((g: SimplifiedGroup) => g.header?.location_city === selectedKabupaten)
+      .map((g: SimplifiedGroup) => g.header?.location_village)
+      .filter(Boolean))) as string[]
+    return villages.map((v: string) => ({ id: v, label: v }))
+  }, [groupsArray, selectedKabupaten])
 
   const statusOptions = useMemo(() => {
-    const opts: { id: string; label: string }[] = [{ id: 'all', label: 'All Status' }];
-    const hasHealthy = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) > 80);
-    const hasMedium = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) >= 25 && (g.header?.trust_score ?? 0) <= 80);
-    const hasToxic = groupsArray.some((g: any) => (g.header?.trust_score ?? 0) < 25);
+    const opts: { id: string; label: string }[] = [{ id: 'all', label: 'All Status' }]
+    const hasHealthy = groupsArray.some((g: SimplifiedGroup) => (g.header?.trust_score ?? 0) > 80)
+    const hasMedium = groupsArray.some((g: SimplifiedGroup) => (g.header?.trust_score ?? 0) >= 25 && (g.header?.trust_score ?? 0) <= 80)
+    const hasToxic = groupsArray.some((g: SimplifiedGroup) => (g.header?.trust_score ?? 0) < 25)
 
-    if (hasHealthy) opts.push({ id: 'healthy', label: 'Healthy' });
-    if (hasMedium) opts.push({ id: 'medium', label: 'Medium' });
-    // Use `toxic` id to match node `type` values and NetworkGraph logic
-    if (hasToxic) opts.push({ id: 'toxic', label: 'Toxic' });
+    if (hasHealthy) opts.push({ id: 'healthy', label: 'Healthy' })
+    if (hasMedium) opts.push({ id: 'medium', label: 'Medium' })
+    if (hasToxic) opts.push({ id: 'toxic', label: 'Toxic' })
 
-    return opts;
-  }, [groupsArray]);
+    return opts
+  }, [groupsArray])
 
-  const isDesaDisabled = !selectedKabupaten;
-  const isStatusDisabled = !selectedDesa;
+  const isDesaDisabled = !selectedKabupaten
+  const isStatusDisabled = !selectedDesa
 
-  // If selectedStatus is not available in the current options (e.g., when location changes), reset it to 'all'
+  // If selectedStatus is not available in the current options, reset it to 'all'
   useEffect(() => {
-    const available = statusOptions.map((o) => o.id);
+    const available = statusOptions.map((o) => o.id)
     if (!available.includes(selectedStatus)) {
-      onStatusChange('all');
+      setSelectedStatus('all')
     }
-  }, [selectedStatus, statusOptions, onStatusChange]);
+  }, [selectedStatus, statusOptions, setSelectedStatus])
 
   return (
     <aside className="w-80 min-h-screen bg-white text-gray-800 flex flex-col border-r border-gray-100 font-sans shadow-[4px_0_24px_rgba(0,0,0,0.02)] shrink-0 z-20">
@@ -102,14 +117,14 @@ const Sidebar = ({
             <CustomSelect
               value={selectedKabupaten}
               options={kabupatenOptions}
-              onChange={onKabupatenChange}
+              onChange={handleKabupatenChange}
               placeholder="Pilih Kabupaten"
             />
 
             <CustomSelect
               value={selectedDesa}
               options={desaOptions}
-              onChange={onDesaChange}
+              onChange={setSelectedDesa}
               placeholder="Pilih Desa"
               disabled={isDesaDisabled}
             />
@@ -137,7 +152,7 @@ const Sidebar = ({
                     name="status"
                     value={status.id}
                     checked={selectedStatus === status.id}
-                    onChange={(e) => onStatusChange(e.target.value)}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
                     disabled={isStatusDisabled}
                     className="peer sr-only"
                   />
@@ -175,7 +190,7 @@ const Sidebar = ({
 
         <div className="flex items-center space-x-3 pt-4 mt-2 border-t border-gray-50">
           <div className="w-9 h-9 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500">
-             <User className="w-4 h-4" />
+            <User className="w-4 h-4" />
           </div>
           <div>
             <h4 className="text-sm font-bold text-gray-900">Admin Firyan</h4>
@@ -184,7 +199,7 @@ const Sidebar = ({
         </div>
       </div>
     </aside>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

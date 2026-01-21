@@ -1,3 +1,9 @@
+/**
+ * Sidebar types
+ */
+
+import type { GraphResponse } from '.';
+
 export interface SidebarProps {
   selectedKabupaten: string;
   onKabupatenChange: (val: string) => void;
@@ -6,5 +12,5 @@ export interface SidebarProps {
   selectedStatus: string;
   onStatusChange: (status: string) => void;
   walletBalance: number;
-  apiData?: any;
+  apiData?: GraphResponse | null;
 }

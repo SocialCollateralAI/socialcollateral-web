@@ -139,10 +139,10 @@ const DecisionsTab: React.FC<DecisionsTabProps> = ({
               <button
                 onClick={() => {
                   if (trustScore > 80) {
-                      handleLoanApproval();
-                    } else if (trustScore >= 25) {
-                      setShowMediumRiskConfirm(true);
-                    }
+                    handleLoanApproval();
+                  } else if (trustScore >= 25) {
+                    setShowMediumRiskConfirm(true);
+                  }
                 }}
                 className="w-full py-4 text-lg font-bold rounded-lg transition-colors flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-400 text-white shadow-sm"
               >

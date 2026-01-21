@@ -16,6 +16,20 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
     title: string;
   }>({ isOpen: false, imageUrl: "", title: "" });
 
+  // Guard against missing insights data
+  if (!node.insights) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+          </svg>
+          <p className="text-sm text-gray-500">Data insights tidak tersedia</p>
+        </div>
+      </div>
+    );
+  }
+
   const assetMap: Record<string, string> = {
     "home_good.jpg": home_good as unknown as string,
     "home_poor.jpg": home_poor as unknown as string,
@@ -29,8 +43,8 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
     return assetMap[fileName] || rawPath;
   };
 
-  const homePreviewUrl = resolveAssetPath(node.insights.cv.home.img_url);
-  const bizPreviewUrl = resolveAssetPath(node.insights.cv.biz.img_url);
+  const homePreviewUrl = resolveAssetPath(node.insights.cv?.home?.img_url || "");
+  const bizPreviewUrl = resolveAssetPath(node.insights.cv?.biz?.img_url || "");
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -47,24 +61,24 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
           <div className="bg-orange-50 border border-orange-200 p-3 rounded">
             <h5 className="text-sm font-bold text-orange-800 mb-2">PREDICTED DEFAULT RISK</h5>
             <div className="flex items-baseline gap-4">
-              <div className="text-3xl font-bold text-orange-600">{node.insights.prediction.default_risk_prob}%</div>
-              <div className="text-xs text-orange-700">in next {node.insights.prediction.horizon_days} days</div>
+              <div className="text-3xl font-bold text-orange-600">{node.insights.prediction?.default_risk_prob ?? 0}%</div>
+              <div className="text-xs text-orange-700">in next {node.insights.prediction?.horizon_days ?? 0} days</div>
             </div>
           </div>
 
           <div className="p-3 rounded">
-            <h5 className="text-sm font-bold mb-2">WHAT-IF SIMULATION: {node.insights.prediction.what_if.scenario.toUpperCase()}</h5>
+            <h5 className="text-sm font-bold mb-2">WHAT-IF SIMULATION: {(node.insights.prediction?.what_if?.scenario ?? 'N/A').toUpperCase()}</h5>
             <div className="flex items-center gap-4">
               <div className="bg-gray-100 rounded-md p-2 py-1">
-                <div className="text-sm font-semibold text-gray-600">Current: <span className="font-bold">{node.insights.prediction.what_if.current_score}%</span></div>
+                <div className="text-sm font-semibold text-gray-600">Current: <span className="font-bold">{node.insights.prediction?.what_if?.current_score ?? 0}%</span></div>
               </div>
               <div className="text-gray-600">→</div>
               <div className="flex">
-                <div className="text-sm text-green-800 bg-green-100 rounded-md p-2 py-1 font-semibold">Projected: <span className="font-bold">{node.insights.prediction.what_if.projected_score}%</span></div>
-                <div className="text-xs text-green-600 p-2 py-1">(+{node.insights.prediction.what_if.improvement_pct}% Quality)</div>
+                <div className="text-sm text-green-800 bg-green-100 rounded-md p-2 py-1 font-semibold">Projected: <span className="font-bold">{node.insights.prediction?.what_if?.projected_score ?? 0}%</span></div>
+                <div className="text-xs text-green-600 p-2 py-1">(+{node.insights.prediction?.what_if?.improvement_pct ?? 0}% Quality)</div>
               </div>
             </div>
-            <div className="mt-8 p-2 italic border border-purple-400 bg-purple-100 rounded-md text-xs font-bold">💡 {node.insights.recommendation_text}</div>
+            <div className="mt-8 p-2 italic border border-purple-400 bg-purple-100 rounded-md text-xs font-bold">💡 {node.insights.recommendation_text ?? 'No recommendation available'}</div>
           </div>
         </div>
       </div>
@@ -80,27 +94,36 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
         <div className="bg-gray-50 rounded-lg p-3 mb-4">
           <div className="flex items-center justify-between mb-3">
             <h5 className="text-xs font-bold text-gray-700 uppercase">HIGH RISK MEMBERS DETECTION</h5>
-            <div className="text-xs text-gray-500">{node.insights.social_graph.risk_members.length} members flagged</div>
+            <div className="text-xs text-gray-500">{node.insights.social_graph?.risk_members?.length ?? 0} members flagged</div>
           </div>
           <div className="space-y-2">
-            {node.insights.social_graph.risk_members
+            {(node.insights.social_graph?.risk_members ?? [])
               .sort((a, b) => {
                 const scoreA = parseInt(a.risk_score || '0', 10)
                 const scoreB = parseInt(b.risk_score || '0', 10)
                 return scoreB - scoreA // urutkan dari kecil ke besar
               })
-              .map((member, index) => (
-              <div key={index} className="flex items-center justify-between p-2 bg-red-50 border border-red-100 rounded">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <div>
-                    <div className="font-medium text-gray-900">{member.name}</div>
-                    <div className="text-xs text-gray-600">{member.hops}</div>
+              .map((member, index) => {
+                const riskValue = parseInt(member.risk_score || '0', 10);
+                // Color logic: green ≤25%, yellow 25-80%, red >80%
+                const bgColor = riskValue <= 25 ? 'bg-green-50' : riskValue <= 80 ? 'bg-yellow-50' : 'bg-red-50';
+                const borderColor = riskValue <= 25 ? 'border-green-100' : riskValue <= 80 ? 'border-yellow-100' : 'border-red-100';
+                const dotColor = riskValue <= 25 ? 'bg-green-500' : riskValue <= 80 ? 'bg-yellow-500' : 'bg-red-500';
+                const textColor = riskValue <= 25 ? 'text-green-600' : riskValue <= 80 ? 'text-yellow-600' : 'text-red-600';
+
+                return (
+                  <div key={index} className={`flex items-center justify-between p-2 ${bgColor} border ${borderColor} rounded`}>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 ${dotColor} rounded-full`}></div>
+                      <div>
+                        <div className="font-medium text-gray-900">{member.name}</div>
+                        <div className="text-xs text-gray-600">{member.hops}</div>
+                      </div>
+                    </div>
+                    <div className={`text-xs font-bold ${textColor}`}>{member.risk_score} risk</div>
                   </div>
-                </div>
-                <div className="text-xs font-bold text-red-600">{member.risk_score} risk</div>
-              </div>
-            ))}
+                );
+              })}
           </div>
         </div>
       </div>
@@ -111,28 +134,28 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
         <div className="bg-white border border-gray-100 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-3">
             <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
             </svg>
             <h5 className="text-sm font-bold text-gray-900 uppercase">HOME INSIGHT</h5>
-            <div className={`ml-auto px-2 py-1 text-xs font-bold rounded ${node.insights.cv.home.condition === "GOOD" ? "bg-green-100 text-green-800" : node.insights.cv.home.condition === "ENOUGH" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}>
-              {node.insights.cv.home.condition}
+            <div className={`ml-auto px-2 py-1 text-xs font-bold rounded ${node.insights.cv?.home?.condition === "GOOD" ? "bg-green-100 text-green-800" : node.insights.cv?.home?.condition === "ENOUGH" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"}`}>
+              {node.insights.cv?.home?.condition ?? 'N/A'}
             </div>
           </div>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-gray-600">Material:</span><span className="font-medium">{node.insights.cv.home.material}</span></div>
-            <div className="flex justify-between"><span className="text-gray-600">Roof:</span><span className="font-medium">{node.insights.cv.home.roof}</span></div>
-            <div className="flex justify-between"><span className="text-gray-600">Access:</span><span className="font-medium">{node.insights.cv.home.access}</span></div>
-            <div className="flex justify-between"><span className="text-gray-600">Occupancy:</span><span className="font-medium">{node.insights.cv.home.occupancy}</span></div>
-            <div className={`flex ${node.insights.cv.home.assets.length > 2 ? 'flex-col' : 'flex-row'} gap-1 mt-2`}>
-              {node.insights.cv.home.assets.map((asset, index) => (
+            <div className="flex justify-between"><span className="text-gray-600">Material:</span><span className="font-medium">{node.insights.cv?.home?.material ?? 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-600">Roof:</span><span className="font-medium">{node.insights.cv?.home?.roof ?? 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-600">Access:</span><span className="font-medium">{node.insights.cv?.home?.access ?? 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-600">Occupancy:</span><span className="font-medium">{node.insights.cv?.home?.occupancy ?? 'N/A'}</span></div>
+            <div className={`flex ${(node.insights.cv?.home?.assets?.length ?? 0) > 2 ? 'flex-col' : 'flex-row'} gap-1 mt-2`}>
+              {(node.insights.cv?.home?.assets ?? []).map((asset, index) => (
                 <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded font-medium w-fit">{asset}</span>
               ))}
             </div>
             <div className="mt-4 border-t pt-3">
               <button onClick={(e) => {
-              e.stopPropagation()
-              setImagePopup({ isOpen: true, imageUrl: homePreviewUrl, title: "Home Image - " + node.header.name })
-            }} className="w-full h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors overflow-hidden flex items-center justify-center">
+                e.stopPropagation()
+                setImagePopup({ isOpen: true, imageUrl: homePreviewUrl, title: "Home Image - " + node.header.name })
+              }} className="w-full h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors overflow-hidden flex items-center justify-center">
                 {homePreviewUrl ? (
                   <img src={homePreviewUrl} alt="Home Image" className="w-full h-full object-cover" />
                 ) : (
@@ -147,28 +170,28 @@ const InsightsTab: React.FC<InsightsTabProps> = ({ node }) => {
         <div className="bg-white border border-gray-100 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-3">
             <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+              <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
             </svg>
             <h5 className="text-sm font-bold text-gray-900 uppercase">BIZ INSIGHT</h5>
-            <div className={`ml-auto px-2 py-1 text-xs font-bold rounded ${node.insights.cv.biz.status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-              {node.insights.cv.biz.status}
+            <div className={`ml-auto px-2 py-1 text-xs font-bold rounded ${node.insights.cv?.biz?.status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+              {node.insights.cv?.biz?.status ?? 'N/A'}
             </div>
           </div>
           <div className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-gray-600">Type:</span><span className="font-medium">{node.insights.cv.biz.type}</span></div>
-            <div className="flex justify-between"><span className="text-gray-600">Stability:</span><span className="font-medium">{node.insights.cv.biz.stability}</span></div>
-            <div className="flex justify-between"><span className="text-gray-600">Traffic:</span><span className="font-medium">{node.insights.cv.biz.traffic}</span></div>
-            <div className="flex justify-between"><span className="text-gray-600">Digital:</span><span className="font-medium">{node.insights.cv.biz.digital}</span></div>
-            <div className={`flex ${node.insights.cv.biz.inventory.length > 2 ? 'flex-col' : 'flex-row'} gap-1 mt-2`}>
-              {node.insights.cv.biz.inventory.map((item, index) => (
+            <div className="flex justify-between"><span className="text-gray-600">Type:</span><span className="font-medium">{node.insights.cv?.biz?.type ?? 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-600">Stability:</span><span className="font-medium">{node.insights.cv?.biz?.stability ?? 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-600">Traffic:</span><span className="font-medium">{node.insights.cv?.biz?.traffic ?? 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-600">Digital:</span><span className="font-medium">{node.insights.cv?.biz?.digital ?? 'N/A'}</span></div>
+            <div className={`flex ${(node.insights.cv?.biz?.inventory?.length ?? 0) > 2 ? 'flex-col' : 'flex-row'} gap-1 mt-2`}>
+              {(node.insights.cv?.biz?.inventory ?? []).map((item, index) => (
                 <span key={index} className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded font-medium w-fit">{item}</span>
               ))}
             </div>
             <div className="mt-4 border-t pt-3">
               <button onClick={(e) => {
-              e.stopPropagation()
-              setImagePopup({ isOpen: true, imageUrl: bizPreviewUrl, title: "Business Image - " + node.header.name })
-            }} className="w-full h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors overflow-hidden flex items-center justify-center">
+                e.stopPropagation()
+                setImagePopup({ isOpen: true, imageUrl: bizPreviewUrl, title: "Business Image - " + node.header.name })
+              }} className="w-full h-32 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg hover:bg-gray-50 transition-colors overflow-hidden flex items-center justify-center">
                 {bizPreviewUrl ? (
                   <img src={bizPreviewUrl} alt="Business Image" className="w-full h-full object-cover" />
                 ) : (

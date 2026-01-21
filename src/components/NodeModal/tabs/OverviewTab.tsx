@@ -1,34 +1,47 @@
 import React, { useState, useMemo } from "react";
-import type { Node } from "../types";
+import type { Node, Neighbor } from "../types";
 import formatCurrency from "../../../utils/formatCurrency";
+
+// Enriched neighbor with derived trust score
+interface EnrichedNeighbor {
+   id: string;
+   name: string;
+   distance: string;
+   relation: string;
+   trust_score: number;
+   risk: string;
+}
 
 interface OverviewTabProps {
    node: Node;
+   graphNeighbors?: Neighbor[];
 }
 
-const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
+const OverviewTab: React.FC<OverviewTabProps> = ({ node, graphNeighbors }) => {
    const [radarSort, setRadarSort] = useState("toxic-first");
+   const [showAllNeighbors, setShowAllNeighbors] = useState(false);
+   const INITIAL_NEIGHBORS_COUNT = 3;
 
-   // Enrich neighbors dengan trust_score dari fetched group details
+   // Enrich neighbors - prioritize graph-derived neighbors (source of truth for visual connections)
    const enrichedNeighbors = useMemo(() => {
-      console.log('Node Data for Neighbors:', node);
-      console.log('Node overview:', node.overview);
-      
-      // Use the detailed node data that was fetched by NodeModal
-      const neighbors = node.overview?.neighbors || [];
-      console.log('Direct neighbors:', neighbors);
-      console.log('Neighbors length:', neighbors.length);
-      
-      if (neighbors.length === 0) {
-         console.log(`No neighbors found for node ${node.id}. This node appears to be isolated.`);
-      }
-      const neighborsMap = new Map<string, any>();
-      
+
+
+      // Use graph-derived neighbors if available (matches visual canvas)
+      // Fall back to API neighbors if graph neighbors not provided
+      const neighbors = graphNeighbors && graphNeighbors.length > 0
+         ? graphNeighbors
+         : (node.overview?.neighbors || []);
+
+
+
+
+      const neighborsMap = new Map<string, EnrichedNeighbor>();
+
       // Process direct neighbors from the fetched node data
-      neighbors.forEach((neighbor: any) => {
+      neighbors.forEach((neighbor: Neighbor) => {
          // The neighbor data already contains the risk category from API
          const riskCategory = neighbor.risk || "healthy";
-         
+
          // Convert risk score from neighbor if available, otherwise derive from risk category
          let trustScore = 50; // default
          if (neighbor.trust_score) {
@@ -42,19 +55,20 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                default: trustScore = 50;
             }
          }
-         
-         neighborsMap.set(neighbor.id, {
-            id: neighbor.id,
-            name: neighbor.name || neighbor.id,
+
+         const neighborId = neighbor.id || neighbor.name;
+         neighborsMap.set(neighborId, {
+            id: neighborId,
+            name: neighbor.name || neighborId,
             distance: neighbor.distance || "0km",
             relation: neighbor.relation || "Tetangga",
             trust_score: trustScore,
             risk: riskCategory
          });
       });
-      
+
       return Array.from(neighborsMap.values());
-   }, [node]);
+   }, [node, graphNeighbors]);
 
    return (
       <div className="space-y-6 animate-in fade-in duration-300">
@@ -91,13 +105,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                <div className="relative">
                   <div className="flex bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
                      <div
-                        className={`h-4 transition-all duration-700 ${
-                           (node.header?.trust_score || 0) > 80
-                              ? "bg-blue-500"
-                              : (node.header?.trust_score || 0) >= 25
-                                ? "bg-yellow-500"
-                                : "bg-yellow-500"
-                        }`}
+                        className={`h-4 transition-all duration-700 ${(node.header?.trust_score || 0) > 80
+                           ? "bg-blue-500"
+                           : (node.header?.trust_score || 0) >= 25
+                              ? "bg-yellow-500"
+                              : "bg-yellow-500"
+                           }`}
                         style={{
                            width: `${node.overview?.primary_driver?.payment_score || 0}%`,
                         }}
@@ -106,13 +119,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                   <div className="flex justify-between mt-2">
                      <div className="flex items-center gap-2">
                         <div
-                           className={`w-3 h-3 rounded-full ${
-                              node.header.trust_score > 80
-                                 ? "bg-blue-500"
-                                 : node.header.trust_score >= 25
-                                   ? "bg-yellow-500"
-                                   : "bg-yellow-500"
-                           }`}
+                           className={`w-3 h-3 rounded-full ${node.header.trust_score > 80
+                              ? "bg-blue-500"
+                              : node.header.trust_score >= 25
+                                 ? "bg-yellow-500"
+                                 : "bg-yellow-500"
+                              }`}
                         ></div>
                         <span className="text-xs text-gray-700 font-bold">
                            {node.overview?.primary_driver?.payment_score || 0}%
@@ -128,13 +140,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                <div className="relative">
                   <div className="flex bg-gray-200 rounded-full h-4 overflow-hidden shadow-inner">
                      <div
-                        className={`h-4 transition-all duration-700 ${
-                           node.header.trust_score > 80
-                              ? "bg-emerald-500"
-                              : node.header.trust_score >= 25
-                                ? "bg-red-500"
-                                : "bg-red-500"
-                        }`}
+                        className={`h-4 transition-all duration-700 ${node.header.trust_score > 80
+                           ? "bg-emerald-500"
+                           : node.header.trust_score >= 25
+                              ? "bg-red-500"
+                              : "bg-red-500"
+                           }`}
                         style={{
                            width: `${node.overview?.primary_driver?.social_score || 0}%`,
                         }}
@@ -146,13 +157,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                            {node.overview?.primary_driver?.social_score || 0}%
                         </span>
                         <div
-                           className={`w-3 h-3 rounded-full ${
-                              node.header.trust_score > 80
-                                 ? "bg-emerald-500"
-                                 : node.header.trust_score >= 25
-                                   ? "bg-red-500"
-                                   : "bg-red-500"
-                           }`}
+                           className={`w-3 h-3 rounded-full ${node.header.trust_score > 80
+                              ? "bg-emerald-500"
+                              : node.header.trust_score >= 25
+                                 ? "bg-red-500"
+                                 : "bg-red-500"
+                              }`}
                         ></div>
                      </div>
                   </div>
@@ -199,8 +209,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                            node.header.trust_score > 80
                               ? "#10b981"
                               : node.header.trust_score >= 25
-                                ? "#f59e0b"
-                                : "#ef4444"
+                                 ? "#f59e0b"
+                                 : "#ef4444"
                         }
                         strokeWidth="8"
                         fill="none"
@@ -283,87 +293,88 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ node }) => {
                   >
                      <option value="toxic-first">SORT: TOXIC FIRST</option>
                      <option value="health-first">SORT: HEALTH FIRST</option>
-                     <option value="location">SORT: LOCATION</option>
                   </select>
                </div>
             </div>
 
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+            <div className="space-y-3">
                {enrichedNeighbors
                   .sort((a, b) => {
                      if (radarSort === "toxic-first") {
                         // Sort by trust_score ASCENDING (lowest first = most toxic)
-                        if (a.trust_score !== b.trust_score) {
-                           return a.trust_score - b.trust_score;
-                        }
-                        // Secondary: by distance if trust_score sama
-                        const distanceA = parseFloat(a.distance.replace("km", "")) || 0;
-                        const distanceB = parseFloat(b.distance.replace("km", "")) || 0;
-                        return distanceA - distanceB;
+                        return a.trust_score - b.trust_score;
                      } else if (radarSort === "health-first") {
                         // Sort by trust_score DESCENDING (highest first = healthiest)
-                        if (a.trust_score !== b.trust_score) {
-                           return b.trust_score - a.trust_score;
-                        }
-                        // Secondary: by distance if trust_score sama
-                        const distanceA = parseFloat(a.distance.replace("km", "")) || 0;
-                        const distanceB = parseFloat(b.distance.replace("km", "")) || 0;
-                        return distanceA - distanceB;
-                     } else if (radarSort === "location") {
-                        // Primary: by distance ASCENDING
-                        const distanceA = parseFloat(a.distance.replace("km", "")) || 0;
-                        const distanceB = parseFloat(b.distance.replace("km", "")) || 0;
-                        if (distanceA !== distanceB) {
-                           return distanceA - distanceB;
-                        }
-                        // Secondary: by trust_score ASCENDING (toxic first)
-                        return a.trust_score - b.trust_score;
+                        return b.trust_score - a.trust_score;
                      }
                      return 0;
                   })
+                  .slice(0, showAllNeighbors ? undefined : INITIAL_NEIGHBORS_COUNT)
                   .map((neighbor, index) => (
                      <div
                         key={index}
-                        className={`flex items-center justify-between p-2 rounded ${
-                           neighbor.risk === "toxic"
-                              ? "bg-red-50 border border-red-100"
-                              : neighbor.risk === "medium"
-                                ? "bg-yellow-50 border border-yellow-100"
-                                : "bg-green-50 border border-green-100"
-                        }`}
+                        className={`flex items-center justify-between p-2 rounded ${neighbor.risk === "toxic"
+                           ? "bg-red-50 border border-red-100"
+                           : neighbor.risk === "medium"
+                              ? "bg-yellow-50 border border-yellow-100"
+                              : "bg-green-50 border border-green-100"
+                           }`}
                      >
                         <div className="flex items-center gap-3">
                            <div
-                              className={`w-2 h-2 rounded-full ${
-                                 neighbor.risk === "toxic"
-                                    ? "bg-red-500"
-                                    : neighbor.risk === "medium"
-                                      ? "bg-yellow-500"
-                                      : "bg-green-500"
-                              }`}
+                              className={`w-2 h-2 rounded-full ${neighbor.risk === "toxic"
+                                 ? "bg-red-500"
+                                 : neighbor.risk === "medium"
+                                    ? "bg-yellow-500"
+                                    : "bg-green-500"
+                                 }`}
                            ></div>
                            <div>
                               <div className="font-medium text-gray-900">
                                  {neighbor.name}
                               </div>
                               <div className="text-xs text-gray-600">
-                                 {neighbor.relation} • {neighbor.distance}
+                                 {neighbor.relation}
                               </div>
                            </div>
                         </div>
                         {neighbor.risk === "toxic" && (
                            <div className="px-2 py-1 bg-red-100 border border-red-400 text-red-700 text-xs font-semibold rounded uppercase">
-                              CONTAGION RISK
+                              TOXIC
                            </div>
                         )}
                         {neighbor.risk === "medium" && (
                            <div className="px-2 py-1 bg-yellow-100 border border-yellow-400 text-yellow-700 text-xs font-semibold rounded uppercase">
-                              MEDIUM RISK
+                              MEDIUM
                            </div>
                         )}
                      </div>
                   ))}
             </div>
+
+            {/* Load More Button */}
+            {enrichedNeighbors.length > INITIAL_NEIGHBORS_COUNT && (
+               <button
+                  onClick={() => setShowAllNeighbors(!showAllNeighbors)}
+                  className="w-full mt-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors flex items-center justify-center gap-2"
+               >
+                  {showAllNeighbors ? (
+                     <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                        </svg>
+                        Tampilkan Lebih Sedikit
+                     </>
+                  ) : (
+                     <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                        Lihat {enrichedNeighbors.length - INITIAL_NEIGHBORS_COUNT} Koneksi Lainnya
+                     </>
+                  )}
+               </button>
+            )}
          </div>
       </div>
    );
