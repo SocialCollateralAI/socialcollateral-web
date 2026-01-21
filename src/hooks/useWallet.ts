@@ -27,18 +27,18 @@ export const useWallet = (): UseWalletReturn => {
      * Validates amount before processing
      */
     const handleApproveLoan = useCallback((amount: number): void => {
-        console.log('handleApproveLoan called with amount:', amount, 'type:', typeof amount)
+
 
         // Validation: must be a valid positive number
         if (typeof amount !== 'number' || isNaN(amount) || amount < 0) {
-            console.log('Early return - invalid amount:', amount)
+
             return
         }
 
         setWalletBalance((prev) => {
             const newBalance = Math.max(0, prev - amount)
             localStorage.setItem(WALLET_STORAGE_KEY, newBalance.toString())
-            console.log(`Approved loan ${amount}. New wallet balance: ${newBalance}`)
+
             return newBalance
         })
     }, [])
