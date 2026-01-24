@@ -30,7 +30,7 @@ This repository maintains three distinct branches representing different stages 
 
 This is the production deployment of the refined PoC version, showcasing the complete Social Graph Engine with interactive visualization and multi-perspective risk analysis.
 
-## Technology Stack
+<!-- ## Technology Stack
 
 - **Framework**: React 18 (Vite build tool)
 - **Graph Visualization**: Sigma.js (WebGL-powered for high performance)
@@ -48,7 +48,7 @@ This is the production deployment of the refined PoC version, showcasing the com
 | **TypeScript**   | Type safety and improved developer experience, essential for maintaining complex state management in graph interactions         |
 | **Vercel**       | Zero-config deployment with automatic HTTPS, global CDN, and seamless CI/CD integration                                         |
 
-## Key Features
+## Key Features -->
 
 ### 1. **Interactive Social Graph Visualization**
 
