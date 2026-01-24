@@ -1,6 +1,7 @@
 /**
  * Sidebar - Location and status filtering component
  * Phase 3: Refactored to use DashboardContext instead of props
+ * Production deployment: Jan 24, 2026
  */
 import { useMemo, useEffect } from 'react'
 import { Activity, Filter, User } from 'lucide-react'
