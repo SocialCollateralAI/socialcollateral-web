@@ -1,73 +1,51 @@
-# React + TypeScript + Vite
+# SocialCollateral AI - Frontend Dashboard (Pre-Hackathon Prep)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **Branch**: `main`  
+> This branch contains the preparation/baseline code from the days before competition. For the refined PoC version, see [`develop`](https://github.com/SocialCollateralAI/socialcollateral-web/tree/develop) branch. For the competition version, see [`mvp-hackathon`](https://github.com/SocialCollateral-AI/socialcollateral-web/tree/mvp-hackathon) branch.
 
-Currently, two official plugins are available:
+## Branch Purpose
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This is the preparation branch created between the Top 15 announcement and competition day, containing:
 
-## React Compiler
+- Initial React + Vite setup with TypeScript
+- Sigma.js graph visualization foundation
+- Basic component structure and routing
+- Early API integration scaffolding
+- UI/UX baseline implementation
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+**Status**: Baseline code (refined in competition and post-hackathon)
 
-## Expanding the ESLint configuration
+## What's New vs Develop Branch
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**Timeline Context**:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Develop Branch**: Post-hackathon refined version with cleanup and refactoring
+- **This Branch (Main)**: Preparation baseline from days before competition
+- **MVP-Hackathon Branch**: 24-hour live coding competition version
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+**Key Features Implemented**:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Sigma.js network graph canvas
+- Basic sidebar with location filtering
+- Node modal component structure
+- API service integration setup
+- Initial styling and layout
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Modified From Default Vite Template**:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Added Sigma.js for graph visualization
+- Custom component structure (`NetworkGraph`, `Sidebar`, `NodeModal`)
+- API service layer for backend integration
+- TypeScript configuration for production
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+<!--
+## Development Context
+
+This branch represents the preparation work done in the days between receiving the Top 15 announcement (Monday) and the 24-hour live hackathon (Friday). The team used this time to:
+- Set up the technical foundation
+- Implement core visualization features
+- Prepare component architecture for rapid development during the competition
+
+**Team**: Tim Suksemustanice
+**Competition**: Amartha x GDG Jakarta Hackathon 2025
+-->
