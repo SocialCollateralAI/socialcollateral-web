@@ -1,152 +1,191 @@
-# 🌐 SocialCollateral Web – Frontend Dashboard
+# SocialCollateral AI - Frontend Dashboard
 
-**Antarmuka visual untuk SocialCollateral AI**, dibangun untuk menampilkan jaringan sosial, skor kepercayaan, serta visualisasi data kredit mikro berbasis graf.
+Frontend interface for **Jaringan Amanah** (The Amanah Network), a Social Graph Engine built for the Amartha ecosystem. Provides interactive visualization and analysis tools for network-based risk assessment.
 
-Frontend ini berfungsi sebagai **Dashboard** yang terhubung ke Backend SocialCollateral AI.
+## Repository Structure
 
----
+This repository maintains three distinct branches representing different stages of the project lifecycle:
 
-## 🚀 Project Overview
+### Branch Overview
 
-Dashboard ini menampilkan:
-- Visualisasi **Social Graph** (node & edges)
-- Filter dinamis (Kabupaten, Desa, Group)
-- Tampilan detail anggota & hubungan sosial
-- Integrasi penuh dengan Backend API (FastAPI)
+|                 | **`develop`**                                                                                                                                                                                          | **`main`**                                                                                                                                                      | **`mvp-hackathon`**                                                                                                                                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Description** | Production-Ready PoC Version                                                                                                                                                                           | Pre-Competition Preparation                                                                                                                                     | Competition Demo Version                                                                                                                                                                                                     |
+| **Scope**       | • Cleaned and refactored codebase<br><br>• Professional code structure for PoC<br><br>• Optimized component architecture<br><br>• Comprehensive documentation<br><br>• Production deployment on Vercel | • Initial preparation version (days before hackathon)<br><br>• Basic feature implementation<br><br>• Early integration with backend<br><br>• Foundational setup | • Live competition demo version<br><br>• 24-hour hackathon build<br><br>• Full feature implementation under time pressure<br><br>• Direct integration with Amartha data<br><br>• Known technical debt from rapid development |
 
-Aplikasi dibangun menggunakan **React + Vite** dengan performa cepat dan desain modern
+> **Development Context**: This branch represents the refined version developed post-hackathon, incorporating best practices, code cleanup, and architectural improvements. All rushed implementations from the competition have been refactored for maintainability and professional presentation.
 
----
+> **Why not use `mvp-hackathon` as default?**  
+> The competition version was built under extreme time constraints (24 hours) and contains technical debt that needed addressing. This branch structure preserves the complete evolution from concept to polished implementation, serving as comprehensive technical documentation.
 
-## 🔗 Deployment
+### Branch Selection Guide
 
-| Service | URL |
-|---------|-----|
-| **Frontend Dashboard** | https://socialcollateral-web.vercel.app/ |
-| **Backend API (Referensi)** | https://socialcollateral-ai-production.up.railway.app |
+- **For PoC reference**: `develop` (current branch)
+- **For preparation study**: `main`
+- **For competition implementation**: `mvp-hackathon`
 
----
+## Application Demo
 
-## 📂 Struktur Direktori (Frontend)
+**Live Demo**: [https://app.social-collateral.id/](https://app.social-collateral.id/)
 
-Struktur proyek frontend berada di folder **FRONTEND/**:
+This is the production deployment of the refined PoC version, showcasing the complete Social Graph Engine with interactive visualization and multi-perspective risk analysis.
 
-```
-FRONTEND/
-├── node_modules/             # Dependencies
-├── src/
-│   ├── api/                 # API services untuk Backend integration
-│   ├── assets/              # Static assets (images, icons, etc)
-│   ├── common/              # Common utilities & helpers
-│   ├── components/          # Reusable components
-│   │   ├── header/         # Header component
-│   │   ├── NetworkGraph/   # Network graph visualization
-│   │   │   ├── NodeModal/ # Modal untuk detail node
-│   │   │   │   ├── tabs/  # Tab components (info, connections, etc)
-│   │   │   │   ├── index.tsx
-│   │   │   │   └── types.ts
-│   │   │   └── Sidebar/   # Sidebar component
-│   │   └── NetworkGraph.tsx # Main graph component
-│   ├── data/               # Data files
-│   │   └── networkData.json # Network data (nodes & edges)
-│   ├── utils/              # Utility functions
-│   │   └── formatCurrency.tsx
-│   ├── App.css             # App styles
-│   ├── App.tsx             # Main App component
-│   ├── index.css           # Global styles
-│   └── main.tsx            # Entry point
-├── .gitignore
-├── eslint.config.js        # ESLint configuration
-├── index.html              # HTML template
-├── package-lock.json
-├── package.json            # Dependencies & scripts
-├── README.md               # Documentation
-├── tsconfig.app.json       # TypeScript config (app)
-└── tsconfig.json           # TypeScript config (base)
-```
+## Technology Stack
 
----
+- **Framework**: React 18 (Vite build tool)
+- **Graph Visualization**: Sigma.js (WebGL-powered for high performance)
+- **Language**: TypeScript
+- **Styling**: Modern CSS with custom design system
+- **Deployment**: Vercel (Production), Docker support available
+- **State Management**: React Hooks + Context API
 
-## 🚀 Installation & Usage
+### Why These Technologies?
+
+| Technology       | Justification                                                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| **React + Vite** | Fast development experience with HMR, optimal production builds, and modern tooling                                             |
+| **Sigma.js**     | Industry-standard graph visualization library capable of rendering tens of thousands of nodes smoothly using WebGL acceleration |
+| **TypeScript**   | Type safety and improved developer experience, essential for maintaining complex state management in graph interactions         |
+| **Vercel**       | Zero-config deployment with automatic HTTPS, global CDN, and seamless CI/CD integration                                         |
+
+## Key Features
+
+### 1. **Interactive Social Graph Visualization**
+
+- Real-time network rendering with Sigma.js
+- Intuitive zoom, pan, and node selection
+- Visual clustering based on geographic and social proximity
+- Color-coded nodes representing risk levels
+
+### 2. **Multi-Perspective Analysis Dashboard**
+
+When clicking a group node, the system displays comprehensive analysis through "Three AI Lenses":
+
+- **Graph Analytics**: Network centrality, clustering coefficient, community detection
+- **NLP Insights**: Sentiment analysis from field agent reports powered by Gemini AI
+- **Computer Vision**: Asset assessment from business/home photos via Google Vision API
+
+### 3. **Dynamic Filtering**
+
+Filter the network visualization by:
+
+- **Kabupaten** (District)
+- **Desa** (Village)
+- **Group** (Lending circles)
+
+### 4. **Trust Score Calculation**
+
+Algorithmic combination of:
+
+- Social graph structure analysis
+- Behavioral sentiment patterns
+- Economic asset indicators
+
+<!--
+## Local Development
 
 ### Prerequisites
-- Node.js >= 18.x
-- npm atau yarn
 
-### Quick Start
+- Node.js >= 18.x
+- npm or yarn
+
+### Setup
+
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/SocialCollateralAI/socialcollateral-web.git
+   cd socialcollateral-web
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Run development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Access application**
+   ```
+   http://localhost:5173
+   ```
+
+### Build for Production
 
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/socialcollateral-web.git
-cd socialcollateral-web
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build untuk production
 npm run build
 ```
+-->
 
-Server akan berjalan di `http://localhost:5173`
+<!--
+## Project Structure
 
----
-
-## 🔌 Backend Integration
-
-Frontend ini terhubung ke **Backend API (FastAPI)** untuk mengambil data:
-- Social graph data (nodes & edges)
-- Member details dan hubungan sosial
-- Filter data berdasarkan lokasi (Kabupaten, Desa, Group)
-
-**Backend API Base URL:**
 ```
-https://socialcollateral-ai-production.up.railway.app
+src/
+├── api/                 # Backend API integration services
+├── components/          # React components
+│   ├── NetworkGraph/   # Main graph visualization
+│   │   ├── NodeModal/  # Detail popup component
+│   │   └── Sidebar/    # Filter controls
+│   └── Header/         # Application header
+├── utils/              # Utility functions
+├── data/               # Static data files
+└── main.tsx            # Application entry point
 ```
+-->
+
+<!--
+## Backend Integration
+
+This frontend consumes RESTful APIs from the FastAPI backend:
+
+- Graph data retrieval for network visualization
+- Group detail analytics (combines Graph, NLP, and CV metrics)
+- Dynamic filtering based on geographic hierarchy
+
+**API Base URL**: `https://api.socialcollateral.id/api/v1`
+
+For backend documentation, see: [socialcollateral-ai repository](https://github.com/SocialCollateralAI/socialcollateral-ai)
+-->
+
+<!--
+## Deployment
+
+### Vercel Setup
+
+This repository is configured for Vercel deployment with automatic deployments from the `develop` branch.
+
+**Custom Domain**: `socialcollateral.id`
+
+**Deployment Steps**:
+1. Import repository to Vercel dashboard
+2. Configure build settings (auto-detected for Vite)
+3. Add environment variables if needed
+4. Deploy and configure custom domain
+
+**Environment**: Production deployments auto-trigger from `develop` branch pushes.
+-->
+
+<!--
+## Project Context
+
+This frontend was developed for a national-scale fintech hackathon, reaching the Top 15 finalists. The project demonstrates a novel approach to microfinance risk assessment using social graph analytics, natural language processing, and computer vision—all visualized through an intuitive web interface.
+
+**Competition**: Amartha x Google Developer Groups Jakarta Hackathon 2025
+**Achievement**: Top 15 Finalist
+**Team**: Tim Suksemustanice
+-->
 
 ---
 
-## ✨ Key Features Detail
+## License
 
-### 1. **Visualisasi Social Graph**
-Menampilkan jaringan sosial dalam bentuk graf interaktif dengan:
-- Node: Mewakili anggota
-- Edge: Mewakili hubungan antar anggota
-- Interactive zoom & pan
-- Node detail on click
+Copyright © 2025 Tim Suksemustanice. All Rights Reserved.
 
-### 2. **Filter Dinamis**
-Filter data secara real-time berdasarkan:
-- **Kabupaten** - Filter berdasarkan kabupaten
-- **Desa** - Filter berdasarkan desa
-- **Group** - Filter berdasarkan kelompok/grup
+This project is maintained as a technical portfolio and research documentation. The code, algorithms, and system architecture are proprietary intellectual property.
 
-### 3. **Detail Anggota**
-Tampilan lengkap informasi anggota meliputi:
-- Profil anggota
-- Hubungan sosial (connections)
-- Skor kepercayaan (trust score)
-- Riwayat transaksi/aktivitas
+For commercial licensing, collaboration, or technical inquiries, please contact the [team](https://www.linkedin.com/in/firyan-fatih-fadilah).
 
-### 4. **Skor Kepercayaan**
-Perhitungan skor berbasis:
-- Social graph analysis
-- Clustering coefficient
-- Network centrality
-- Community detection
-
----
-
-## 🎯 Tech Stack
-
-**Frontend Framework:**
-- React + Vite
-- Modern JavaScript/ES6+
-
-**API Integration:**
-- FastAPI Backend
-- RESTful API
-
----
+See [LICENSE](./LICENSE) for full terms.

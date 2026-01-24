@@ -94,9 +94,13 @@ const Sidebar = () => {
       <div className="px-6 pt-8 pb-4">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2.5">
-            <h2 className="text-lg font-bold text-gray-900 tracking-tight">SocialColateral AI</h2>
+            <h2 className="text-lg font-bold text-gray-900 tracking-tight">SocialCollateral AI</h2>
           </div>
-          <span className="bg-green-50 text-green-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-100 tracking-wide">
+          <span className="bg-green-50 text-green-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-100 tracking-wide flex items-center gap-1.5">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+            </span>
             MVP DEMO
           </span>
         </div>
