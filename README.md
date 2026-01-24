@@ -1,152 +1,99 @@
-# 🌐 SocialCollateral Web – Frontend Dashboard
+# SocialCollateral AI - Frontend Dashboard (Competition Version)
 
-**Antarmuka visual untuk SocialCollateral AI**, dibangun untuk menampilkan jaringan sosial, skor kepercayaan, serta visualisasi data kredit mikro berbasis graf.
+> **Branch**: `mvp-hackathon`  
+> This is the competition demo version from the Amartha x GDG Jakarta 2025 Hackathon. For the baseline preparation code, see [`main`](https://github.com/SocialCollateralAI/socialcollateral-web/tree/main) branch. For the refined PoC version, see [`develop`](https://github.com/SocialCollateralAI/socialcollateral-web/tree/develop) branch.
 
-Frontend ini berfungsi sebagai **Dashboard** yang terhubung ke Backend SocialCollateral AI.
+## Branch Purpose
 
----
+This branch preserves the production code from the 24-hour live hackathon, containing:
 
-## 🚀 Project Overview
+- Full Sigma.js graph visualization implementation
+- Real-time API integration with Amartha microfinance data
+- Interactive node modal with multi-tab detail views
+- Dynamic filtering system (Kabupaten, Desa, Status)
+- Complete UI/UX implementation under time pressure
 
-Dashboard ini menampilkan:
-- Visualisasi **Social Graph** (node & edges)
-- Filter dinamis (Kabupaten, Desa, Group)
-- Tampilan detail anggota & hubungan sosial
-- Integrasi penuh dengan Backend API (FastAPI)
+**Status**: Historical documentation (preserved as-is for portfolio)
 
-Aplikasi dibangun menggunakan **React + Vite** dengan performa cepat dan desain modern
+## Development Challenges & Limitations
 
----
+### Built in 24 Hours
 
-## 🔗 Deployment
+The following limitations are **expected and documented**:
 
-| Service | URL |
-|---------|-----|
-| **Frontend Dashboard** | https://socialcollateral-web.vercel.app/ |
-| **Backend API (Referensi)** | https://socialcollateral-ai-production.up.railway.app |
+**Challenges Encountered**:
 
----
+- Backend data structure changes required rapid frontend schema adjustments
+- Sigma.js integration learning curve under competition pressure
+- UI state management complexity with tight deadline
+- Limited testing time across different data scenarios
 
-## 📂 Struktur Direktori (Frontend)
+**Known Limitations**:
 
-Struktur proyek frontend berada di folder **FRONTEND/**:
+- ✘ **UI-Data Inconsistencies** - Node colors don't always match internal risk data
+  - Example: Green (healthy) node may contain red (high-risk) data when clicked
+  - Example: Yellow (medium) node shows green data in detail modal
+  - **Root Cause**: Color mapping logic mismatch between graph rendering and data source
+- ✘ **untested Edge Cases** - Limited validation for specific Kabupaten/Desa combinations
+- ⚠︎ **Style Inconsistencies** - Some components have conflicting CSS/inline styles
+- ⚠︎ **Performance Optimization** - Graph rendering could be more efficient for large datasets
 
-```
-FRONTEND/
-├── node_modules/             # Dependencies
-├── src/
-│   ├── api/                 # API services untuk Backend integration
-│   ├── assets/              # Static assets (images, icons, etc)
-│   ├── common/              # Common utilities & helpers
-│   ├── components/          # Reusable components
-│   │   ├── header/         # Header component
-│   │   ├── NetworkGraph/   # Network graph visualization
-│   │   │   ├── NodeModal/ # Modal untuk detail node
-│   │   │   │   ├── tabs/  # Tab components (info, connections, etc)
-│   │   │   │   ├── index.tsx
-│   │   │   │   └── types.ts
-│   │   │   └── Sidebar/   # Sidebar component
-│   │   └── NetworkGraph.tsx # Main graph component
-│   ├── data/               # Data files
-│   │   └── networkData.json # Network data (nodes & edges)
-│   ├── utils/              # Utility functions
-│   │   └── formatCurrency.tsx
-│   ├── App.css             # App styles
-│   ├── App.tsx             # Main App component
-│   ├── index.css           # Global styles
-│   └── main.tsx            # Entry point
-├── .gitignore
-├── eslint.config.js        # ESLint configuration
-├── index.html              # HTML template
-├── package-lock.json
-├── package.json            # Dependencies & scripts
-├── README.md               # Documentation
-├── tsconfig.app.json       # TypeScript config (app)
-└── tsconfig.json           # TypeScript config (base)
-```
+**Demo Strategy**: During the competition presentation, the team carefully selected "safe" nodes (data-consistent locations) to demonstrate to judges, successfully avoiding UI bugs during the live demo.
 
----
+**Post-Competition Cleanup**: After the hackathon, the codebase was thoroughly refactored in the `develop` branch with proper data mapping fixes, consistent styling, comprehensive testing, and optimized performance.
 
-## 🚀 Installation & Usage
+## Data & Privacy Notice
 
-### Prerequisites
-- Node.js >= 18.x
-- npm atau yarn
+**Important**: This branch was developed with actual Amartha microfinance data during the competition:
 
-### Quick Start
+| Data Type                   | Included in Repo? | Note                                                           |
+| --------------------------- | ----------------- | -------------------------------------------------------------- |
+| **Network Graph Data**      | ✓ Yes             | Sanitized/anonymized data in `src/data/networkData.json`       |
+| **Real Member Information** | ✘ No              | Excluded for data privacy and security                         |
+| **API Endpoints**           | ✓ Yes             | Historical reference only (backend deployment may be inactive) |
 
-```bash
-# Clone repository
-git clone https://github.com/yourusername/socialcollateral-web.git
-cd socialcollateral-web
+### How Data Was Processed
 
-# Install dependencies
-npm install
+The UI visualization was built using:
 
-# Run development server
-npm run dev
+- **Backend AI Analysis** - Pre-computed trust scores and risk assessments from Vertex AI
+- **Social Graph Algorithms** - Network visualization of microfinance group relationships
+- **Real-time API Integration** - Dynamic data fetching from FastAPI backend
 
-# Build untuk production
-npm run build
-```
+**Current Status**: Code preserved for portfolio and documentation purposes.
 
-Server akan berjalan di `http://localhost:5173`
+## What's New vs Main Branch
 
----
+**Additional Features**:
 
-## 🔌 Backend Integration
+- Complete Sigma.js canvas implementation with zoom/pan controls
+- NodeModal component with tabbed interface (Overview, Graph Metrics, NLP Insights, CV Analysis)
+- Advanced filtering logic with cascading Kabupaten → Desa → Status selection
+- Wallet balance display and user profile section
+- Custom color-coded risk visualization (green/yellow/red)
 
-Frontend ini terhubung ke **Backend API (FastAPI)** untuk mengambil data:
-- Social graph data (nodes & edges)
-- Member details dan hubungan sosial
-- Filter data berdasarkan lokasi (Kabupaten, Desa, Group)
+<!-- **Modified Files**:
 
-**Backend API Base URL:**
-```
-https://socialcollateral-ai-production.up.railway.app
-```
+- `src/components/NetworkGraph.tsx` - Full graph rendering with Sigma.js
+- `src/components/Sidebar.tsx` - Complete filtering UI
+- `src/components/NodeModal/` - Multi-tab detail modal
+- `src/api/services.ts` - Backend API integration
+- `src/data/networkData.json` - Competition dataset -->
 
----
+**Technical Debt (Fixed in `develop`)**:
 
-## ✨ Key Features Detail
+- Node color mapping logic corrected for data consistency
+- CSS/style conflicts resolved with systematic refactoring
+- Performance optimizations for graph rendering
+- Comprehensive testing across all data scenarios
+- Code cleanup and documentation improvements
 
-### 1. **Visualisasi Social Graph**
-Menampilkan jaringan sosial dalam bentuk graf interaktif dengan:
-- Node: Mewakili anggota
-- Edge: Mewakili hubungan antar anggota
-- Interactive zoom & pan
-- Node detail on click
+<!--
+## Development Context
 
-### 2. **Filter Dinamis**
-Filter data secara real-time berdasarkan:
-- **Kabupaten** - Filter berdasarkan kabupaten
-- **Desa** - Filter berdasarkan desa
-- **Group** - Filter berdasarkan kelompok/grup
+This branch represents the actual code demonstrated during the 24-hour Amartha x GDG Jakarta Hackathon 2025. Despite time constraints and known issues, the team successfully presented a working demo by strategically selecting "safe" node data during the live presentation. The experience highlighted the importance of thorough testing and robust data validation, which were addressed in the post-hackathon refactor (`develop` branch).
 
-### 3. **Detail Anggota**
-Tampilan lengkap informasi anggota meliputi:
-- Profil anggota
-- Hubungan sosial (connections)
-- Skor kepercayaan (trust score)
-- Riwayat transaksi/aktivitas
-
-### 4. **Skor Kepercayaan**
-Perhitungan skor berbasis:
-- Social graph analysis
-- Clustering coefficient
-- Network centrality
-- Community detection
-
----
-
-## 🎯 Tech Stack
-
-**Frontend Framework:**
-- React + Vite
-- Modern JavaScript/ES6+
-
-**API Integration:**
-- FastAPI Backend
-- RESTful API
-
----
+**Team**: Tim Suksemustanice
+**Competition**: Amartha x GDG Jakarta Hackathon 2025
+**Achievement**: Successfully demonstrated full-stack AI integration despite technical challenges
+-->
