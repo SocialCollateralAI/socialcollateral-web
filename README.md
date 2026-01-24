@@ -8,10 +8,47 @@ This repository maintains three distinct branches representing different stages 
 
 ### Branch Overview
 
-|                 | **`develop`**                                                                                                                                                                                          | **`main`**                                                                                                                                                      | **`mvp-hackathon`**                                                                                                                                                                                                          |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Description** | Production-Ready PoC                                                                                                                                                                           | Pre-Competition Preparation                                                                                                                                     | Competition Demo Version                                                                                                                                                                                                     |
-| **Scope**       | • Cleaned and refactored codebase<br><br>• Professional code structure for PoC<br><br>• Optimized component architecture<br><br>• Comprehensive documentation<br><br>• Production deployment on Vercel | • Initial preparation version (days before hackathon)<br><br>• Basic feature implementation<br><br>• Early integration with backend<br><br>• Foundational setup | • Live competition demo version<br><br>• 24-hour hackathon build<br><br>• Full feature implementation under time pressure<br><br>• Direct integration with Amartha data<br><br>• Known technical debt from rapid development |
+<table>
+<thead>
+  <tr>
+    <th></th>
+    <th><code>develop</code></th>
+    <th><code>main</code></th>
+    <th><code>mvp-hackathon</code></th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td><strong>Description</strong></td>
+    <td valign="top">Production-Ready PoC</td>
+    <td valign="top">Pre-Competition Preparation</td>
+    <td valign="top">Competition Demo Version</td>
+  </tr>
+  <tr>
+    <td><strong>Scope</strong></td>
+    <td valign="top">
+      • Cleaned and refactored codebase<br><br>
+      • Professional code structure for PoC<br><br>
+      • Optimized component architecture<br><br>
+      • Comprehensive documentation<br><br>
+      • Production deployment on Vercel
+    </td>
+    <td valign="top">
+      • Initial preparation version (days before hackathon)<br><br>
+      • Basic feature implementation<br><br>
+      • Early integration with backend<br><br>
+      • Foundational setup
+    </td>
+    <td valign="top">
+      • Live competition demo version<br><br>
+      • 24-hour hackathon build<br><br>
+      • Full feature implementation under time pressure<br><br>
+      • Direct integration with Amartha data<br><br>
+      • Known technical debt from rapid development
+    </td>
+  </tr>
+</tbody>
+</table>
 
 > **Development Context**: This branch represents the refined version developed post-hackathon, incorporating best practices, code cleanup, and architectural improvements. All rushed implementations from the competition have been refactored for maintainability and professional presentation.
 
