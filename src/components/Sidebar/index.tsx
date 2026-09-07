@@ -32,7 +32,7 @@ const Sidebar = () => {
     apiData
   } = useDashboard()
 
-  const groupsArray = useMemo((): SimplifiedGroup[] => {
+  /* const groupsArray = useMemo((): SimplifiedGroup[] => {
     if (!apiData) return []
 
     // Handle new API format with nodes array
@@ -47,6 +47,23 @@ const Sidebar = () => {
     }
 
     // Fallback to old format (shouldn't happen with new API)
+    return []
+  }, [apiData]) */
+
+  const groupsArray = useMemo((): SimplifiedGroup[] => {
+    if (!apiData) return []
+
+    // Handle new API format with nodes array
+    if (apiData.nodes) {
+      return apiData.nodes.map((node: GraphNodeRaw): SimplifiedGroup => ({
+        header: {
+          location_city: node.attributes?.cluster || 'Unknown',
+          location_village: node.attributes?.label || '',
+          trust_score: node.attributes?.risk_badge === 'LOW RISK' ? 90 : node.attributes?.risk_badge === 'MED RISK' ? 50 : 10
+        }
+      }))
+    }
+
     return []
   }, [apiData])
 
