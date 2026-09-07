@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { GraphResponse, GroupDetailsResponse } from '../types';
 
-const API_BASE = 'https://socialcollateral-api-228221306168.asia-southeast2.run.app/api/v1'
+const API_BASE = 'https://api.social-collateral.id/api/v1' 
 
 export function getAPIClient() {
   return axios.create({ baseURL: API_BASE })
